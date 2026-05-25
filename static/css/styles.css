@@ -13,3 +13,17 @@ body {
 .card {
   border-radius: 1rem;
 }
+
+.timeline-card {
+  border-left: 6px solid #cbd5e1;
+}
+
+.timeline-card-active {
+  border-left-color: #16a34a;
+  background: linear-gradient(90deg, rgba(22, 163, 74, 0.08), rgba(255, 255, 255, 0.95) 28%);
+}
+
+.timeline-card-inactive {
+  border-left-color: #64748b;
+  background: linear-gradient(90deg, rgba(100, 116, 139, 0.08), rgba(255, 255, 255, 0.95) 28%);
+}

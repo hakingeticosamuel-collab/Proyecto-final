@@ -27,11 +27,7 @@ def inject_login_settings():
 
 
 def get_connection():
-    return pyodbc.connect(
-        config.DATABASE_CONNECTION_STRING,
-        autocommit=True,
-        timeout=2,
-    )
+    return pyodbc.connect(config.DATABASE_CONNECTION_STRING, autocommit=True)
 
 
 def login_required(view):
@@ -111,11 +107,11 @@ def fetch_project_records(limit=8, status=None, device=None, start_date=None, en
 
     if start_date:
         filters.append("MeasurementDate >= ?")
-        params.append(start_date)
+        params.append(f"{start_date} 00:00:00")
 
     if end_date:
         filters.append("MeasurementDate < DATEADD(day, 1, ?)")
-        params.append(end_date)
+        params.append(f"{end_date} 00:00:00")
 
     where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
     with get_connection() as conn:
@@ -384,19 +380,8 @@ def api_public_metrics():
 
 @app.route("/api/public/records")
 def api_public_records():
-    status = request.args.get("status", "").strip() or None
-    device = request.args.get("device", "").strip() or None
-    start_date = request.args.get("start_date", "").strip() or None
-    end_date = request.args.get("end_date", "").strip() or None
-
     try:
-        records = fetch_project_records(
-            limit=50,
-            status=status,
-            device=device,
-            start_date=start_date,
-            end_date=end_date,
-        )
+        records = fetch_project_records(limit=50)
     except Exception:
         app.logger.exception("Error loading public records")
         return jsonify({"error": "No se pudieron cargar los registros."}), 500
@@ -462,7 +447,15 @@ def logout():
 
 @app.route("/health")
 def health_check():
-    return jsonify({"status": "ok"}), 200
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        return jsonify({"status": "ok"}), 200
+    except Exception:
+        app.logger.exception("Health check failed")
+        return jsonify({"status": "error", "detail": "No se pudo conectar a la base de datos."}), 500
 
 
 @app.route("/app", defaults={"path": ""})
