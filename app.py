@@ -33,10 +33,11 @@ def source_status():
 
 
 def get_somee_settings():
+    user = os.environ.get('SOMEE_USER') or os.environ.get('SOMEE_USERNAME')
     return {
-        'server': os.environ.get('SOMEE_SERVER', 'iot_alumbrado_paipa.mssql.somee.com'),
-        'database': os.environ.get('SOMEE_DATABASE', 'iot_alumbrado_paipa'),
-        'user': os.environ.get('SOMEE_USERNAME'),
+        'server': os.environ.get('SOMEE_SERVER') or 'iot_alumbrado_paipa.mssql.somee.com',
+        'database': os.environ.get('SOMEE_DATABASE') or 'iot_alumbrado_paipa',
+        'user': user,
         'password': os.environ.get('SOMEE_PASSWORD'),
     }
 

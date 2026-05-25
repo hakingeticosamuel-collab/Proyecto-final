@@ -1,49 +1,83 @@
 <template>
-  <div class="w-full">
-    <div class="flex items-center justify-between gap-3 mb-3">
-      <h3 class="text-base font-semibold text-slate-900">Dashboard</h3>
-      <div class="flex items-center gap-2">
-        <button @click="expand" class="inline-flex items-center gap-2 rounded-md bg-white/60 px-3 py-2 text-sm text-slate-700 shadow-sm hover:bg-white">Expandir</button>
-        <button @click="reload" class="inline-flex items-center gap-2 rounded-md bg-white/60 px-3 py-2 text-sm text-slate-700 shadow-sm hover:bg-white">Actualizar</button>
-        <a :href="reportUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700">Abrir</a>
+  <div ref="frameHost" class="w-full">
+    <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Power BI</p>
+        <h3 class="text-base font-semibold text-slate-900">Dashboard publicado</h3>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button :disabled="!hasReportUrl" @click="toggleFullscreen" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">Pantalla completa</button>
+        <button :disabled="!hasReportUrl" @click="reload" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">Recargar</button>
+        <button :disabled="!hasReportUrl" @click="openReport" class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400">Abrir</button>
       </div>
     </div>
 
-    <div class="relative rounded-lg border border-slate-100 bg-white overflow-hidden">
-      <div v-if="loading" class="p-8">
+    <div class="relative overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+      <div v-if="!hasReportUrl" class="flex min-h-[360px] items-center justify-center p-8 text-center">
+        <div class="max-w-sm space-y-3">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Power BI</p>
+          <h4 class="text-lg font-semibold text-slate-900">Conecta la URL del reporte</h4>
+          <p class="text-sm leading-6 text-slate-600">Define `POWER_BI_URL` en el entorno para mostrar el dashboard embebido. Mientras tanto, el diseño permanece limpio y sin controles inactivos.</p>
+        </div>
+      </div>
+      <div v-else-if="loading" class="p-8">
         <div class="animate-pulse space-y-3">
           <div class="h-5 w-1/4 bg-slate-200 rounded"></div>
           <div class="h-72 bg-slate-100 rounded"></div>
         </div>
       </div>
-      <iframe v-else :src="reportUrl" class="w-full h-[480px] bg-white" frameborder="0" loading="lazy"></iframe>
+      <iframe
+        v-else
+        :key="frameKey"
+        :src="reportUrl"
+        class="h-[480px] w-full bg-white md:h-[620px]"
+        frameborder="0"
+        loading="lazy"
+        title="Power BI report"
+      ></iframe>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 const props = defineProps({
   reportUrl: { type: String, required: true },
 })
 const loading = ref(true)
+const frameKey = ref(0)
+const frameHost = ref(null)
+const hasReportUrl = computed(() => Boolean(props.reportUrl))
 
-function expand() {
-  window.open(props.reportUrl, '_blank')
+function openReport() {
+  if (!hasReportUrl.value) return
+  window.open(props.reportUrl, '_blank', 'noopener')
 }
 
 function reload() {
+  if (!hasReportUrl.value) return
   loading.value = true
-  // small debounce to show loader
-  setTimeout(() => (loading.value = false), 700)
+  frameKey.value += 1
+  window.setTimeout(() => {
+    loading.value = false
+  }, 650)
+}
+
+async function toggleFullscreen() {
+  if (!hasReportUrl.value) return
+  if (!document.fullscreenElement && frameHost.value?.requestFullscreen) {
+    await frameHost.value.requestFullscreen()
+    return
+  }
+
+  if (document.exitFullscreen) {
+    await document.exitFullscreen()
+  }
 }
 
 onMounted(() => {
-  // simulate iframe ready after short delay
-  setTimeout(() => (loading.value = false), 900)
+  window.setTimeout(() => {
+    loading.value = false
+  }, 700)
 })
 </script>
-
-<style scoped>
-.rounded-lg { border-radius: 12px; }
-</style>

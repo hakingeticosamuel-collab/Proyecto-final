@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900">
-    <div class="mx-auto flex h-full min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
-      <header class="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl sm:p-5">
+  <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,1),_rgba(248,250,252,1)_42%,_rgba(241,245,249,1))] text-slate-900">
+    <div class="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
+      <header class="sticky top-4 z-30 flex items-center justify-between gap-4 rounded-[22px] border border-slate-200/80 bg-white/90 p-4 shadow-sm backdrop-blur-xl sm:p-5">
         <div class="flex items-center gap-4">
           <button
             @click="toggleSidebar"
@@ -20,15 +20,15 @@
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button @click="go('dashboard-publicado')" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700">Abrir dashboard</button>
+          <button @click="go('dashboard-publicado')" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Abrir dashboard</button>
         </div>
       </header>
 
-      <div class="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
+      <div class="mt-6 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside
           :class="[
-            'rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-sm backdrop-blur-xl transition-all',
-            sidebarOpen ? 'block' : 'hidden sm:block'
+            'rounded-[24px] border border-slate-200/80 bg-white/90 p-5 shadow-sm backdrop-blur-xl transition-all lg:sticky lg:top-24 lg:self-start',
+            sidebarOpen ? 'block' : 'hidden lg:block'
           ]"
         >
           <div class="flex items-center justify-between gap-4">
@@ -44,7 +44,7 @@
               ×
             </button>
           </div>
-          <nav class="mt-6 space-y-3 text-sm">
+          <nav class="mt-6 space-y-2 text-sm">
             <button @click="go('portada')" type="button" :class="buttonClass('portada')">Portada</button>
             <button @click="go('introduccion')" type="button" :class="buttonClass('introduccion')">Introducción</button>
             <button @click="go('arquitectura')" type="button" :class="buttonClass('arquitectura')">Arquitectura</button>
@@ -58,18 +58,16 @@
             <button @click="go('conclusiones')" type="button" :class="buttonClass('conclusiones')">Conclusiones</button>
             <button @click="go('evidencias')" type="button" :class="buttonClass('evidencias')">Evidencias</button>
           </nav>
-          <div class="mt-8 rounded-3xl border border-slate-200/80 bg-indigo-600/5 p-4">
-            <p class="text-xs uppercase tracking-[0.24em] text-indigo-700/70">Estado</p>
-            <p class="mt-2 text-sm leading-6 text-slate-700">Modo Docker activo. Sin login, sin base de datos y sin servicios externos en el arranque.</p>
+          <div class="mt-8 rounded-[20px] border border-slate-200/80 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Estado</p>
+            <p class="mt-2 text-sm leading-6 text-slate-700">Vista pública optimizada para lectura rápida, responsive y con acciones concentradas en el dashboard.</p>
           </div>
         </aside>
 
-        <main class="space-y-6">
-          <section class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <div class="space-y-4">
-              <slot name="hero"></slot>
-            </div>
-            <div class="grid gap-4 sm:grid-cols-2">
+        <main class="space-y-6 pb-10">
+          <section class="space-y-4">
+            <slot name="hero"></slot>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <slot name="cards"></slot>
             </div>
           </section>
@@ -104,10 +102,10 @@ function go(section) {
 }
 
 function buttonClass(name) {
-  const base = 'w-full text-left rounded-2xl px-4 py-3 transition'
+  const base = 'w-full text-left rounded-full px-4 py-3 transition duration-200'
   if (props.selectedSection === name) {
-    return base + " bg-slate-950 text-white"
+    return base + " bg-slate-950 text-white shadow-sm"
   }
-  return base + " border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+  return base + " border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
 }
 </script>
