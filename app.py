@@ -61,7 +61,7 @@ def get_user(username):
                         "role": row[4],
                     }
     except Exception:
-        pass
+        app.logger.exception("Error querying app_users table")
     return None
 
 
@@ -112,6 +112,7 @@ def index():
                     fallback=0,
                 )
     except Exception:
+        app.logger.exception("Error loading index metrics")
         flash(
             "No se pudo conectar a la base de datos. Verifica la configuración de SQL Server.",
             "warning",
@@ -151,6 +152,7 @@ def api_public_locations():
                         }
                     )
     except Exception:
+        app.logger.exception("Error loading public locations")
         return jsonify({"error": "No se pudieron cargar las ubicaciones."}), 500
     return jsonify(locations)
 
@@ -182,6 +184,7 @@ def api_public_metrics():
                 row = cursor.fetchone()
                 metrics["consumo_promedio"] = float(row[0]) if row and row[0] is not None else 0
     except Exception:
+        app.logger.exception("Error loading public metrics")
         return jsonify({"error": "No se pudieron cargar las métricas."}), 500
     return jsonify(metrics)
 
@@ -207,6 +210,7 @@ def api_public_records():
                         }
                     )
     except Exception:
+        app.logger.exception("Error loading public records")
         return jsonify({"error": "No se pudieron cargar los registros."}), 500
     return jsonify(records)
 
@@ -234,6 +238,7 @@ def api_records():
                 )
         record_audit(None, session.get("user"), "record_created", f"device={device_id} value={value}")
     except Exception:
+        app.logger.exception("Error saving project record")
         return jsonify({"error": "No se pudo guardar el registro."}), 500
     return jsonify({"ok": True}), 201
 
@@ -265,6 +270,19 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/health")
+def health_check():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        return jsonify({"status": "ok"}), 200
+    except Exception:
+        app.logger.exception("Health check failed")
+        return jsonify({"status": "error", "detail": "No se pudo conectar a la base de datos."}), 500
 
 
 if __name__ == "__main__":
