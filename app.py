@@ -1,6 +1,7 @@
 import pyodbc
-from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, send_from_directory, abort
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from werkzeug.security import check_password_hash, generate_password_hash
 import config
 
 app = Flask(__name__)
@@ -20,12 +21,12 @@ def get_connection():
 
 
 def login_required(view):
+    @wraps(view)
     def wrapped_view(**kwargs):
         if not session.get("user"):
             return redirect(url_for("login"))
         return view(**kwargs)
 
-    wrapped_view.__name__ = view.__name__
     return wrapped_view
 
 
@@ -38,6 +39,46 @@ def query_single_value(cursor, query, fallback=0):
     except Exception:
         return fallback
     return fallback
+
+
+def get_user(username):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT UserId, Username, PasswordHash, DisplayName, Role "
+                    "FROM app_users "
+                    "WHERE Username = ?",
+                    username,
+                )
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        "user_id": row[0],
+                        "username": row[1],
+                        "password_hash": row[2],
+                        "display_name": row[3],
+                        "role": row[4],
+                    }
+    except Exception:
+        pass
+    return None
+
+
+def record_audit(user_id, username, action, detail=None):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO audit_logs (UserId, Username, ActionType, Detail) "
+                    "VALUES (?, ?, ?, ?)",
+                    user_id,
+                    username,
+                    action,
+                    detail,
+                )
+    except Exception:
+        pass
 
 
 @app.route("/")
@@ -145,16 +186,76 @@ def api_public_metrics():
     return jsonify(metrics)
 
 
+@app.route("/api/public/records")
+def api_public_records():
+    records = []
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT TOP 50 RecordId, DeviceId, MeasurementDate, Value, Status "
+                    "FROM project_records ORDER BY MeasurementDate DESC"
+                )
+                for row in cursor:
+                    records.append(
+                        {
+                            "id": row[0],
+                            "device_id": row[1],
+                            "measurement_date": row[2].isoformat() if row[2] else None,
+                            "value": float(row[3]) if row[3] is not None else 0,
+                            "status": row[4] or "Activo",
+                        }
+                    )
+    except Exception:
+        return jsonify({"error": "No se pudieron cargar los registros."}), 500
+    return jsonify(records)
+
+
+@app.route("/api/records", methods=["POST"])
+@login_required
+def api_records():
+    data = request.get_json() or {}
+    device_id = data.get("device_id", "").strip()
+    value = data.get("value")
+    status = data.get("status", "Activo").strip()
+
+    if not device_id or value is None:
+        return jsonify({"error": "device_id y value son obligatorios."}), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO project_records (DeviceId, MeasurementDate, Value, Status) "
+                    "VALUES (?, GETUTCDATE(), ?, ?)",
+                    device_id,
+                    float(value),
+                    status,
+                )
+        record_audit(None, session.get("user"), "record_created", f"device={device_id} value={value}")
+    except Exception:
+        return jsonify({"error": "No se pudo guardar el registro."}), 500
+    return jsonify({"ok": True}), 201
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
-        if username == LOGIN_USER and password == LOGIN_PASSWORD:
-            session["user"] = username
+        user = get_user(username)
+        if user and check_password_hash(user["password_hash"], password):
+            session["user"] = user["username"]
+            record_audit(user["user_id"], user["username"], "login_success")
             return redirect(url_for("index"))
 
+        if username == LOGIN_USER and password == LOGIN_PASSWORD:
+            session["user"] = username
+            record_audit(None, username, "login_success", "fallback_env_user")
+            return redirect(url_for("index"))
+
+        record_audit(None, username, "login_failed")
         flash("Usuario o contraseña incorrectos.", "danger")
 
     return render_template("login.html")
@@ -164,25 +265,6 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
-
-
-FRONTEND_DIST = Path(__file__).resolve().parent / "frontend" / "dist"
-
-
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def public_app(path):
-    if path.startswith("api/") or path.startswith("login") or path.startswith("logout"):
-        abort(404)
-
-    if not FRONTEND_DIST.exists():
-        abort(404, description="Frontend no está construido. Ejecuta npm run build en frontend.")
-
-    target = FRONTEND_DIST / path
-    if path != "" and target.exists() and target.is_file():
-        return send_from_directory(FRONTEND_DIST, path)
-
-    return send_from_directory(FRONTEND_DIST, "index.html")
 
 
 if __name__ == "__main__":
