@@ -69,51 +69,75 @@ def run_somee_query(sql):
             return [dict(zip(columns, row)) for row in rows]
 
 
+def make_somee_payload(configured, mode, counts=None, latest_mediciones=None, error=None):
+    payload = {
+        'configured': configured,
+        'source': 'Somee/SQL Server',
+        'mode': mode,
+        'counts': counts or {},
+        'latest_mediciones': latest_mediciones or [],
+    }
+    if error:
+        payload['error'] = error
+    return payload
+
+
+def fetch_somee_summary():
+    mediciones = run_somee_query('SELECT COUNT(*) AS total_mediciones, MAX(fecha_hora) AS ultima_medicion FROM dbo.medicion')
+    dispositivos = run_somee_query("SELECT COUNT(*) AS total_dispositivos, SUM(CASE WHEN estado = 'Activo' THEN 1 ELSE 0 END) AS dispositivos_activos FROM dbo.dispositivo_iot")
+    fact_mediciones = run_somee_query('SELECT COUNT(*) AS total_fact_mediciones, MAX(FechaCarga) AS ultima_carga FROM dw.FactMediciones')
+    return {
+        'mediciones': mediciones[0] if mediciones else {},
+        'dispositivos': dispositivos[0] if dispositivos else {},
+        'fact_mediciones': fact_mediciones[0] if fact_mediciones else {},
+    }
+
+
+def fetch_somee_latest_measurements(limit=5):
+    return run_somee_query(
+        f'SELECT TOP {int(limit)} id_medicion, id_sensor, fecha_hora, valor, calidad_dato, fuente, created_at FROM dbo.medicion ORDER BY fecha_hora DESC'
+    )
+
+
+@app.route('/api/summary')
+def summary():
+    if not somee_is_configured():
+        return jsonify(make_somee_payload(False, 'unconfigured'))
+
+    try:
+        return jsonify(make_somee_payload(True, 'read-only', counts=fetch_somee_summary()))
+    except Exception as exc:
+        return jsonify(make_somee_payload(False, 'error', error=str(exc)))
+
+
+@app.route('/api/last-measurements')
+def last_measurements():
+    if not somee_is_configured():
+        return jsonify(make_somee_payload(False, 'unconfigured', latest_mediciones=[]))
+
+    limit = int(os.environ.get('LAST_MEASUREMENTS_LIMIT', 5))
+    try:
+        return jsonify(make_somee_payload(True, 'read-only', latest_mediciones=fetch_somee_latest_measurements(limit)))
+    except Exception as exc:
+        return jsonify(make_somee_payload(False, 'error', error=str(exc), latest_mediciones=[]))
+
+
 @app.route('/api/dw-summary')
 def dw_summary():
     if not somee_is_configured():
-        return jsonify(
-            {
-                'configured': False,
-                'source': 'Somee/SQL Server',
-                'mode': 'unconfigured',
-                'counts': {},
-                'latest_mediciones': [],
-            }
-        ), 200
+        return jsonify(make_somee_payload(False, 'unconfigured'))
 
     try:
-        mediciones = run_somee_query('SELECT COUNT(*) AS total_mediciones, MAX(fecha_hora) AS ultima_medicion FROM dbo.medicion')
-        dispositivos = run_somee_query("SELECT COUNT(*) AS total_dispositivos, SUM(CASE WHEN estado = 'Activo' THEN 1 ELSE 0 END) AS dispositivos_activos FROM dbo.dispositivo_iot")
-        fact_mediciones = run_somee_query('SELECT COUNT(*) AS total_fact_mediciones, MAX(FechaCarga) AS ultima_carga FROM dw.FactMediciones')
-        latest_mediciones = run_somee_query(
-            'SELECT TOP 5 id_medicion, id_sensor, fecha_hora, valor, calidad_dato, fuente, created_at FROM dbo.medicion ORDER BY fecha_hora DESC'
+        return jsonify(
+            make_somee_payload(
+                True,
+                'read-only',
+                counts=fetch_somee_summary(),
+                latest_mediciones=fetch_somee_latest_measurements(5),
+            )
         )
-
-        return jsonify(
-            {
-                'configured': True,
-                'source': 'Somee/SQL Server',
-                'mode': 'read-only',
-                'counts': {
-                    'mediciones': mediciones[0] if mediciones else {},
-                    'dispositivos': dispositivos[0] if dispositivos else {},
-                    'fact_mediciones': fact_mediciones[0] if fact_mediciones else {},
-                },
-                'latest_mediciones': latest_mediciones,
-            }
-        ), 200
     except Exception as exc:
-        return jsonify(
-            {
-                'configured': False,
-                'source': 'Somee/SQL Server',
-                'mode': 'error',
-                'error': str(exc),
-                'counts': {},
-                'latest_mediciones': [],
-            }
-        ), 200
+        return jsonify(make_somee_payload(False, 'error', error=str(exc)))
 
 
 @app.route('/app', defaults={'path': ''})
