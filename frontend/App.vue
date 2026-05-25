@@ -29,18 +29,6 @@
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Introducción</p>
         <h2 class="mt-2 text-2xl font-semibold text-slate-950">Proyecto público Paipa Smart Light</h2>
         <p class="mt-3 text-sm leading-7 text-slate-600">Este portal muestra el proyecto de alumbrado inteligente en Paipa con datos públicos de Somee/SQL Server, un dashboard Power BI embebido y un mapa interactivo de la solución.</p>
-        <div class="mt-6 grid gap-4 sm:grid-cols-2">
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Entrega</p>
-            <p class="mt-2 text-lg font-semibold text-slate-950">Portal público</p>
-            <p class="mt-1 text-sm text-slate-600">Presentación clara de datos, visualización y despliegue.</p>
-          </div>
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Modo</p>
-            <p class="mt-2 text-lg font-semibold text-slate-950">Lectura pública</p>
-            <p class="mt-1 text-sm text-slate-600">Somee y el dashboard se muestran como contenido público verificado.</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -102,24 +90,16 @@ const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos:
 const latestMeasurements = ref([])
 const chartData = ref({ daily_counts: [], sensor_counts: [] })
 
-const dataAvailable = computed(() => {
-  return (
-    Number(summary.value.counts?.mediciones?.total_mediciones) > 0 ||
-    Array.isArray(chartData.value.daily_counts) && chartData.value.daily_counts.length > 0 ||
-    Array.isArray(chartData.value.sensor_counts) && chartData.value.sensor_counts.length > 0
-  )
-})
-
 const sourceLabel = computed(() => {
-  if (sourceStatus.value.configured) return 'Conectado en modo lectura'
-  if (dataAvailable.value) return 'SQL Server disponible (Somee pendiente)'
-  return 'Lectura Somee pendiente'
+  if (sourceStatus.value.mode === 'read-only') return 'Somee conectado en modo lectura'
+  if (sourceStatus.value.mode === 'error') return 'Credenciales Somee detectadas; error de conexión'
+  return 'Sin credenciales Somee'
 })
 
 const connectionDescription = computed(() => {
-  if (sourceStatus.value.configured) return 'La lectura está activa en modo solo consulta.'
-  if (dataAvailable.value) return 'El sitio muestra datos SQL Server; falta la conexión pública Somee.'
-  return 'Sin credenciales Somee; conexión pendiente.'
+  if (sourceStatus.value.mode === 'read-only') return 'La lectura está activa en modo solo consulta.'
+  if (sourceStatus.value.mode === 'error') return sourceStatus.value.error ? `Error Somee: ${sourceStatus.value.error}` : 'Credenciales presentes, pero no se pudo conectar a Somee.'
+  return 'No hay credenciales Somee. Introduce usuario y contraseña para activar la lectura pública.'
 })
 
 onMounted(async () => {

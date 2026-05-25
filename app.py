@@ -22,11 +22,21 @@ def health():
 @app.route('/api/source-status')
 def source_status():
     configured = somee_is_configured()
+    reachable = False
+    error = None
+    mode = 'unconfigured'
+
+    if configured:
+        reachable, error = check_somee_connection()
+        mode = 'read-only' if reachable else 'error'
+
     return jsonify(
         {
             'configured': configured,
+            'reachable': reachable,
             'source': 'Somee/SQL Server',
-            'mode': 'read-only' if configured else 'unconfigured',
+            'mode': mode,
+            'error': error,
             'powerbi_url': os.environ.get('POWER_BI_URL', 'https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9'),
         }
     ), 200
@@ -91,6 +101,14 @@ def fetch_somee_summary():
         'dispositivos': dispositivos[0] if dispositivos else {},
         'fact_mediciones': fact_mediciones[0] if fact_mediciones else {},
     }
+
+
+def check_somee_connection():
+    try:
+        run_somee_query('SELECT TOP 1 1 AS ok FROM dbo.medicion')
+        return True, None
+    except Exception as exc:
+        return False, str(exc)
 
 
 def fetch_somee_latest_measurements(limit=5):
