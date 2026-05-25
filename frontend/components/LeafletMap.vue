@@ -61,9 +61,32 @@ onMounted(() => {
     attribution: '&copy; OpenStreetMap contributors',
   }).addTo(mapInstance)
 
-  createMarker(L, [5.125, -73.118], 'Prototipo IoT', 'Ubicación referencial del sistema de alumbrado.', '#0f172a').addTo(mapInstance)
-  createMarker(L, [5.129, -73.105], 'SQL Server / Somee', 'Base operacional usada para pruebas y trazabilidad.', '#1d4ed8').addTo(mapInstance)
-  createMarker(L, [5.119, -73.129], 'Power BI', 'Capa analítica y visualización del DW.', '#7c3aed').addTo(mapInstance)
+  // Default reference markers
+  const defaults = [
+    { lat: 5.125, lon: -73.118, title: 'Prototipo IoT', description: 'Ubicación referencial del sistema de alumbrado.', color: '#0f172a' },
+    { lat: 5.129, lon: -73.105, title: 'SQL Server / Somee', description: 'Base operacional usada para pruebas y trazabilidad.', color: '#1d4ed8' },
+    { lat: 5.119, lon: -73.129, title: 'Power BI', description: 'Capa analítica y visualización del DW.', color: '#7c3aed' },
+  ]
+
+  // Add default markers first
+  defaults.forEach(d => createMarker(L, [d.lat, d.lon], d.title, d.description, d.color).addTo(mapInstance))
+
+  // Try to fetch real markers from backend
+  fetch('/api/markers')
+    .then(r => r.ok ? r.json() : Promise.reject(r))
+    .then(payload => {
+      const markers = Array.isArray(payload) ? payload : payload.markers || []
+      if (!markers.length) return
+      // Clear default markers by removing and re-adding tiles (simple approach)
+      // Add real markers
+      markers.forEach(m => {
+        if (!m || m.lat == null || m.lon == null) return
+        createMarker(L, [Number(m.lat), Number(m.lon)], m.title || 'Ubicación', m.description || '', '#0b60ff').addTo(mapInstance)
+      })
+    })
+    .catch(() => {
+      // leave defaults on error
+    })
 })
 
 onBeforeUnmount(() => {

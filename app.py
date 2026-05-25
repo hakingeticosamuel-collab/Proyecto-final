@@ -99,6 +99,33 @@ def fetch_somee_latest_measurements(limit=5):
     )
 
 
+def fetch_somee_markers(limit=200):
+    # Prefer DW locations if available, otherwise fall back to operational table
+    try:
+        sql = f"SELECT TOP {int(limit)} Latitud AS lat, Longitud AS lon, NombreUbicacion AS title, Direccion AS description, Activo FROM dw.DimUbicacion WHERE Latitud IS NOT NULL AND Longitud IS NOT NULL ORDER BY NombreUbicacion"
+        rows = run_somee_query(sql)
+        if rows:
+            return [
+                {"lat": float(r["lat"]), "lon": float(r["lon"]), "title": r.get("title") or "Ubicación", "description": r.get("description") or ""}
+                for r in rows
+                if r.get("lat") is not None and r.get("lon") is not None
+            ]
+    except Exception:
+        # ignore and try fallback
+        pass
+
+    try:
+        sql2 = f"SELECT TOP {int(limit)} Latitud AS lat, Longitud AS lon, nombre_ubicacion AS title, Direccion AS description FROM dbo.ubicacion WHERE Latitud IS NOT NULL AND Longitud IS NOT NULL ORDER BY nombre_ubicacion"
+        rows2 = run_somee_query(sql2)
+        return [
+            {"lat": float(r["lat"]), "lon": float(r["lon"]), "title": r.get("title") or "Ubicación", "description": r.get("description") or ""}
+            for r in rows2
+            if r.get("lat") is not None and r.get("lon") is not None
+        ]
+    except Exception:
+        return []
+
+
 @app.route('/api/summary')
 def summary():
     if not somee_is_configured():
@@ -138,6 +165,19 @@ def dw_summary():
         )
     except Exception as exc:
         return jsonify(make_somee_payload(False, 'error', error=str(exc)))
+
+
+@app.route('/api/markers')
+def markers():
+    # Return an object with markers array to be consumed by the frontend map
+    if not somee_is_configured():
+        return jsonify({'markers': []}), 200
+
+    try:
+        data = fetch_somee_markers()
+        return jsonify({'markers': data}), 200
+    except Exception as exc:
+        return jsonify({'markers': [], 'error': str(exc)}), 200
 
 
 @app.route('/app', defaults={'path': ''})
