@@ -18,9 +18,9 @@
     </template>
 
     <template #cards>
-      <MetricCard subtitle="Mediciones" :value="summary.counts.mediciones.total_mediciones ?? '—'" description="Total de registros en dbo.medicion" />
-      <MetricCard subtitle="Dispositivos" :value="summary.counts.dispositivos.total_dispositivos ?? '—'" description="Dispositivos activos en Somee" />
-      <MetricCard subtitle="Última carga" :value="summary.counts.fact_mediciones.ultima_carga ?? '—'" description="Último lote cargado al DW" />
+      <MetricCard subtitle="Mediciones" :value="summary.counts?.mediciones?.total_mediciones ?? '—'" description="Total de registros en dbo.medicion" />
+      <MetricCard subtitle="Dispositivos" :value="summary.counts?.dispositivos?.total_dispositivos ?? '—'" description="Dispositivos activos en Somee" />
+      <MetricCard subtitle="Última carga" :value="summary.counts?.fact_mediciones?.ultima_carga ?? '—'" description="Último lote cargado al DW" />
       <MetricCard subtitle="Conexión" :value="sourceLabel" description="Estado real de la fuente Somee" />
     </template>
 
@@ -245,9 +245,9 @@ const demoChecklist = [
 ]
 
 const evidenceCards = [
-  { title: 'Dashboard público', src: '/assets/images/evidence-dashboard.png' },
-  { title: 'Prototipo IoT', src: '/assets/images/evidence-prototype.jpg' },
-  { title: 'Despliegue', src: '/assets/images/evidence-deploy.png' },
+  { title: 'Dashboard público', src: '/app/assets/images/evidence-dashboard.svg' },
+  { title: 'Prototipo IoT', src: '/app/assets/images/evidence-prototype.svg' },
+  { title: 'Despliegue', src: '/app/assets/images/evidence-deploy.svg' },
 ]
 
 onMounted(async () => {
