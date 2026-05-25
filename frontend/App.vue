@@ -54,7 +54,7 @@
           </div>
           <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <p class="text-xs uppercase tracking-[0.28em] text-slate-500">Consumo</p>
-            <p class="mt-3 text-3xl font-semibold text-slate-950">{{ metrics.consumo_promedio.toFixed(2) }} kWh</p>
+            <p class="mt-3 text-3xl font-semibold text-slate-950">{{ formatNumber(metrics.consumo_promedio) }} kWh</p>
             <p class="mt-2 text-sm text-slate-600">Promedio de energía por lectura.</p>
           </div>
         </div>
@@ -90,7 +90,7 @@
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Consumo promedio</p>
-                  <p class="mt-2 text-2xl font-semibold text-slate-950">{{ reportSummary.average_consumption.toFixed(2) }} kWh</p>
+                  <p class="mt-2 text-2xl font-semibold text-slate-950">{{ formatNumber(reportSummary.average_consumption) }} kWh</p>
                 </div>
               </div>
             </div>
@@ -103,7 +103,7 @@
                     <p class="text-sm font-semibold text-slate-950">{{ location.name }}</p>
                     <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">{{ location.status }}</span>
                   </div>
-                  <p class="mt-2 text-sm text-slate-600">Consumo: {{ location.consumo.toFixed(2) }} kWh</p>
+                  <p class="mt-2 text-sm text-slate-600">Consumo: {{ formatNumber(location.consumo) }} kWh</p>
                 </div>
                 <div v-if="locations.length === 0" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">No hay ubicaciones disponibles.</div>
               </div>
@@ -152,7 +152,7 @@
                     </div>
                     <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">{{ item.alert_count }} alertas</span>
                   </div>
-                  <p class="mt-3 text-sm text-slate-600">Consumo: {{ item.consumo.toFixed(2) }} kWh</p>
+                  <p class="mt-3 text-sm text-slate-600">Consumo: {{ formatNumber(item.consumo) }} kWh</p>
                 </div>
                 <div v-if="topLocations.length === 0" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">No hay datos de consumo para mostrar.</div>
               </div>
@@ -212,7 +212,7 @@
                 <tr v-for="measurement in recentMeasurements" :key="`${measurement.post_id}-${measurement.measurement_date}`">
                   <td class="px-4 py-4 text-slate-950">{{ measurement.location }}</td>
                   <td class="px-4 py-4 text-slate-600">{{ formatDate(measurement.measurement_date) }}</td>
-                  <td class="px-4 py-4 text-slate-950">{{ measurement.consumo.toFixed(2) }} kWh</td>
+                  <td class="px-4 py-4 text-slate-950">{{ formatNumber(measurement.consumo) }} kWh</td>
                   <td class="px-4 py-4 text-slate-600">{{ measurement.alert_status }}</td>
                 </tr>
               </tbody>
@@ -274,7 +274,7 @@
 
                   <div class="rounded-3xl bg-slate-50 px-4 py-3 text-right">
                     <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Valor destacado</p>
-                    <p class="mt-1 text-3xl font-semibold text-slate-950">{{ Number(record.value).toFixed(2) }}</p>
+                    <p class="mt-1 text-3xl font-semibold text-slate-950">{{ formatNumber(record.value) }}</p>
                   </div>
                 </div>
               </article>
@@ -340,6 +340,11 @@ function formatDate(value) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+function formatNumber(value, digits = 2) {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? numericValue.toFixed(digits) : Number(0).toFixed(digits)
 }
 
 function escapeHtml(value) {
@@ -432,7 +437,7 @@ async function loadMetrics() {
       total_mediciones: data.total_mediciones || 0,
       postes_activos: data.postes_activos || 0,
       alertas_activas: data.alertas_activas || 0,
-      consumo_promedio: data.consumo_promedio || 0,
+      consumo_promedio: Number(data.consumo_promedio) || 0,
     }
   } catch (error) {
     apiError.value = 'No fue posible cargar las métricas. Verifica la conexión con el backend.'
@@ -444,7 +449,14 @@ async function loadLocations() {
   try {
     const response = await fetch('/api/public/locations')
     if (!response.ok) throw new Error('Error al cargar ubicaciones')
-    locations.value = await response.json()
+    locations.value = (await response.json()).map((location) => ({
+      ...location,
+      lat: Number(location.lat) || 0,
+      lng: Number(location.lng) || 0,
+      consumo: Number(location.consumo) || 0,
+      alert_count: Number(location.alert_count) || 0,
+      average_consumption: Number(location.average_consumption) || 0,
+    }))
     await syncMapMarkers()
   } catch (error) {
     mapStatus.value = 'No fue posible cargar las ubicaciones del mapa.'
@@ -457,9 +469,24 @@ async function loadReportSummary() {
     const response = await fetch('/api/public/report-summary')
     if (!response.ok) throw new Error('Error al cargar el resumen de reportes')
     const data = await response.json()
-    reportSummary.value = data.summary || reportSummary.value
-    recentMeasurements.value = data.recent_measurements || []
-    topLocations.value = data.top_locations || []
+    reportSummary.value = {
+      ...reportSummary.value,
+      ...(data.summary || {}),
+      total_locations: Number(data.summary?.total_locations ?? reportSummary.value.total_locations) || 0,
+      locations_with_coordinates: Number(data.summary?.locations_with_coordinates ?? reportSummary.value.locations_with_coordinates) || 0,
+      measurement_count: Number(data.summary?.measurement_count ?? reportSummary.value.measurement_count) || 0,
+      alert_count: Number(data.summary?.alert_count ?? reportSummary.value.alert_count) || 0,
+      average_consumption: Number(data.summary?.average_consumption ?? reportSummary.value.average_consumption) || 0,
+    }
+    recentMeasurements.value = (data.recent_measurements || []).map((measurement) => ({
+      ...measurement,
+      consumo: Number(measurement.consumo) || 0,
+    }))
+    topLocations.value = (data.top_locations || []).map((item) => ({
+      ...item,
+      consumo: Number(item.consumo) || 0,
+      alert_count: Number(item.alert_count) || 0,
+    }))
   } catch (error) {
     console.error(error)
   }
@@ -476,7 +503,10 @@ async function loadRecords() {
     const query = params.toString()
     const response = await fetch(`/api/public/records${query ? `?${query}` : ''}`)
     if (!response.ok) throw new Error('Error al cargar registros')
-    records.value = await response.json()
+    records.value = (await response.json()).map((record) => ({
+      ...record,
+      value: Number(record.value) || 0,
+    }))
   } catch (error) {
     console.error(error)
   }
