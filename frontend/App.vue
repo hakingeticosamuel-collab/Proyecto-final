@@ -100,6 +100,31 @@
       </div>
     </section>
 
+    <section id="datos-publicos" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
+        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Datos públicos</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Somee y SQL Server en modo público</h2>
+        <p class="mt-3 text-sm leading-7 text-slate-600">Esta sección explica cómo la web muestra datos públicos y de lectura abierta desde Somee/SQL Server, junto al dashboard Power BI que visualiza la información.</p>
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fuente</p>
+            <p class="mt-2 text-lg font-semibold text-slate-950">Somee / SQL Server</p>
+            <p class="mt-1 text-sm text-slate-600">{{ sourceLabel }}</p>
+          </div>
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Dashboard</p>
+            <p class="mt-2 text-lg font-semibold text-slate-950">{{ sourceStatus.powerbi_url ? 'Disponible' : 'Pendiente' }}</p>
+            <p class="mt-1 text-sm text-slate-600">Visualización pública de Power BI embebida.</p>
+          </div>
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Última carga</p>
+            <p class="mt-2 text-lg font-semibold text-slate-950">{{ summary.counts?.fact_mediciones?.ultima_carga ?? '—' }}</p>
+            <p class="mt-1 text-sm text-slate-600">Hora del último lote cargado al DW.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="dashboard-publicado" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Dashboard publicado</p>
@@ -175,11 +200,13 @@ import BaseLayout from './components/BaseLayout.vue'
 import MetricCard from './components/MetricCard.vue'
 import LeafletMap from './components/LeafletMap.vue'
 import ReportView from './components/ReportView.vue'
+import SomeeCharts from './components/SomeeCharts.vue'
 
 const selectedSection = ref('introduccion')
 const sourceStatus = ref({ source: 'Somee/SQL Server', configured: false, mode: 'unconfigured', powerbi_url: '' })
 const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] })
 const latestMeasurements = ref([])
+const chartData = ref({ daily_counts: [], sensor_counts: [] })
 
 const sourceLabel = computed(() => (sourceStatus.value.configured ? 'Conectado en modo lectura' : 'Lectura Somee pendiente'))
 const connectionDescription = computed(() => (sourceStatus.value.configured ? 'La lectura está activa en modo solo consulta.' : 'Sin credenciales públicas; datos en modo demostración.'))
@@ -216,13 +243,21 @@ onMounted(async () => {
       summary.value = await summaryResponse.json()
     }
 
+    const chartsResponse = await fetch('/api/somee-charts')
+
     if (measurementsResponse.ok) {
       const measurementsData = await measurementsResponse.json()
       latestMeasurements.value = measurementsData.latest_mediciones || []
     }
+
+    if (chartsResponse.ok) {
+      const chartsData = await chartsResponse.json()
+      chartData.value = chartsData || { daily_counts: [], sensor_counts: [] }
+    }
   } catch {
     summary.value = { configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] }
     latestMeasurements.value = []
+    chartData.value = { daily_counts: [], sensor_counts: [] }
   }
 })
 
