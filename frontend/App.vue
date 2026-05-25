@@ -11,7 +11,7 @@
           <div class="flex flex-wrap gap-2">
             <button class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800" @click="goTo('dashboard-publicado')">Ir al dashboard</button>
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('mapa-interactivo')">Ir al mapa</button>
-            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('publicacion-web')">Ver publicación</button>
+            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('datos-publicos')">Ver datos</button>
           </div>
         </div>
       </div>
@@ -101,35 +101,14 @@
     </section>
 
     <section id="datos-publicos" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Datos públicos</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Somee y SQL Server en modo público</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">Esta sección explica cómo la web muestra datos públicos y de lectura abierta desde Somee/SQL Server, junto al dashboard Power BI que visualiza la información.</p>
-        <div class="mt-6 grid gap-4 md:grid-cols-3">
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fuente</p>
-            <p class="mt-2 text-lg font-semibold text-slate-950">Somee / SQL Server</p>
-            <p class="mt-1 text-sm text-slate-600">{{ sourceLabel }}</p>
-          </div>
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Dashboard</p>
-            <p class="mt-2 text-lg font-semibold text-slate-950">{{ sourceStatus.powerbi_url ? 'Disponible' : 'Pendiente' }}</p>
-            <p class="mt-1 text-sm text-slate-600">Visualización pública de Power BI embebida.</p>
-          </div>
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Última carga</p>
-            <p class="mt-2 text-lg font-semibold text-slate-950">{{ summary.counts?.fact_mediciones?.ultima_carga ?? '—' }}</p>
-            <p class="mt-1 text-sm text-slate-600">Hora del último lote cargado al DW.</p>
-          </div>
-        </div>
-      </div>
+      <SomeeCharts :chartData="chartData" />
     </section>
 
     <section id="dashboard-publicado" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Dashboard publicado</p>
         <h2 class="mt-2 text-2xl font-semibold text-slate-950">Reporte embebido y métricas de lectura</h2>
-        <div class="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.7fr)]">
+        <div class="mt-4 grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(380px,1fr)]">
           <ReportView :reportUrl="sourceStatus.powerbi_url || ''" />
           <aside class="space-y-4">
             <div class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -208,7 +187,16 @@ const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos:
 const latestMeasurements = ref([])
 const chartData = ref({ daily_counts: [], sensor_counts: [] })
 
-const sourceLabel = computed(() => (sourceStatus.value.configured ? 'Conectado en modo lectura' : 'Lectura Somee pendiente'))
+const sourceLabel = computed(() => {
+  if (sourceStatus.value.configured) return 'Conectado en modo lectura'
+  if (chartData.value.daily_counts?.length || chartData.value.sensor_counts?.length) return 'Datos SQL Server disponibles'
+  return 'Lectura Somee pendiente'
+})
+const connectionDescription = computed(() => {
+  if (sourceStatus.value.configured) return 'La lectura está activa en modo solo consulta.'
+  if (chartData.value.daily_counts?.length || chartData.value.sensor_counts?.length) return 'Datos cargados desde SQL Server; falta la conexión pública Somee.'
+  return 'Sin credenciales Somee; conexión pendiente.'
+})
 const connectionDescription = computed(() => (sourceStatus.value.configured ? 'La lectura está activa en modo solo consulta.' : 'Sin credenciales públicas; datos en modo demostración.'))
 
 const architectureNodes = [

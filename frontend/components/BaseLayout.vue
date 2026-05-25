@@ -46,11 +46,9 @@
           </div>
           <nav class="mt-6 space-y-2 text-sm">
             <button @click="go('introduccion')" type="button" :class="buttonClass('introduccion')">Introducción</button>
-            <button @click="go('arquitectura')" type="button" :class="buttonClass('arquitectura')">Arquitectura</button>
-            <button @click="go('prototipo-iot')" type="button" :class="buttonClass('prototipo-iot')">Prototipo IoT</button>
-            <button @click="go('publicacion-web')" type="button" :class="buttonClass('publicacion-web')">Publicación web</button>
             <button @click="go('datos-publicos')" type="button" :class="buttonClass('datos-publicos')">Datos públicos</button>
-            <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard publicado</button>
+            <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard público</button>
+            <button @click="go('publicacion-web')" type="button" :class="buttonClass('publicacion-web')">Publicación web</button>
             <button @click="go('mapa-interactivo')" type="button" :class="buttonClass('mapa-interactivo')">Mapa interactivo</button>
             <button @click="go('resultados')" type="button" :class="buttonClass('resultados')">Resultados</button>
             <button @click="go('conclusiones')" type="button" :class="buttonClass('conclusiones')">Conclusiones</button>

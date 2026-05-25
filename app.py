@@ -99,6 +99,42 @@ def fetch_somee_latest_measurements(limit=5):
     )
 
 
+def fetch_somee_chart_data():
+    daily_counts = run_somee_query(
+        """
+        SELECT CONVERT(varchar(10), fecha_hora, 23) AS dia,
+               COUNT(*) AS total_mediciones
+        FROM dbo.medicion
+        GROUP BY CONVERT(varchar(10), fecha_hora, 23)
+        ORDER BY dia ASC
+        """
+    )
+    sensor_counts = run_somee_query(
+        """
+        SELECT id_sensor,
+               COUNT(*) AS total_registros
+        FROM dbo.medicion
+        GROUP BY id_sensor
+        ORDER BY total_registros DESC
+        """
+    )
+    return {
+        'daily_counts': daily_counts,
+        'sensor_counts': sensor_counts,
+    }
+
+
+@app.route('/api/somee-charts')
+def somee_charts():
+    if not somee_is_configured():
+        return jsonify({'configured': False, 'mode': 'unconfigured', 'daily_counts': [], 'sensor_counts': []})
+
+    try:
+        return jsonify({'configured': True, 'mode': 'read-only', **fetch_somee_chart_data()})
+    except Exception as exc:
+        return jsonify({'configured': False, 'mode': 'error', 'error': str(exc), 'daily_counts': [], 'sensor_counts': []})
+
+
 @app.route('/api/summary')
 def summary():
     if not somee_is_configured():
