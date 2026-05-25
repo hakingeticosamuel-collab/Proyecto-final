@@ -1,114 +1,135 @@
-# Informe Final - Entrega 3: Integración TOTAL
+# Informe Final - Entrega 3
 
 ## 1. Portada
 **Proyecto:** Sistema Inteligente de Alumbrado Público - Paipa, Boyacá  
-**Entrega:** 3 (Publicación Web + Prototipo + Sustentación Final)  
-**Integrantes:** [Tu Nombre / Grupo]  
-**Fecha:** [Fecha actual]
+**Entrega:** 3 - Publicación Web + Prototipo + Sustentación Final  
+**Integrantes:** [Nombre(s) del equipo]  
+**Programa:** [Programa académico]  
+**Fecha:** [Fecha de entrega]
 
 ## 2. Introducción General
-Este informe describe la integración total del proyecto: desde el prototipo IoT y la captura de datos, hasta el proceso ETL, el Data Warehouse, el dashboard de Power BI y la publicación del portal web en Flask. La solución busca convertir el alumbrado público en un servicio inteligente y gestionable mediante datos reales y visualizaciones interactivas.
+Este proyecto integra un prototipo IoT, una base de datos en SQL Server, un proceso ETL, un Data Warehouse, visualización en Power BI y una publicación web en Flask. La solución fue diseñada para representar una ciudad inteligente aplicada al alumbrado público, permitiendo capturar datos, transformarlos, analizarlos y exponerlos en una interfaz web accesible para demostración y sustentación.
+
+La entrega 3 reúne toda la cadena funcional del proyecto: captura de datos desde el prototipo, almacenamiento operacional en Somee/SQL Server, procesamiento analítico en el DW, visualización en Power BI y despliegue público en Render mediante Docker.
 
 ## 3. Arquitectura Final del Ecosistema
-El ecosistema completo se estructura como sigue:
+La arquitectura final del ecosistema se resume así:
 
 IoT → SQL Server → ETL → DW → Power BI → Flask
 
-El flujo de datos es:
-- Sensores IoT miden luminosidad, temperatura, corriente y presencia.
-- Las lecturas primarias llegan a SQL Server en un esquema operacional (`dbo`).
-- Se ejecuta el proceso ETL para transformar y cargar los datos en el Data Warehouse (`dw`).
-- Power BI consume el DW para visualizar métricas, mapas y tendencias.
-- Flask publica la interfaz web y embebe el dashboard para acceso público.
+### Flujo general
+- El prototipo IoT simula la captura de variables del entorno y del alumbrado.
+- Los datos se almacenan inicialmente en SQL Server, incluyendo la base pública alojada en Somee cuando aplica para pruebas y consulta.
+- El proceso ETL limpia, transforma y consolida la información.
+- El Data Warehouse organiza los datos para el análisis.
+- Power BI consume el DW para construir visualizaciones, indicadores y reportes.
+- Flask publica el portal web y sirve como capa de presentación para la experiencia final.
+
+### Consideraciones de integración
+- La conexión a SQL Server debe conservar la configuración definida para Somee y los objetos del esquema operativo y analítico.
+- El reporte de Power BI debe estar vinculado al conjunto de datos correcto y a la cuenta publicada.
+- El portal web actúa como la cara pública del ecosistema y como punto de acceso para la sustentación.
 
 ## 4. Prototipo IoT
 
 ### 4.1 Descripción del prototipo
-El prototipo es una maqueta de ciudad inteligente que representa sectores de Paipa con postes de alumbrado público. Incluye una maqueta urbana escalada y postes distribuidos en una pequeña “ciudad” con vías, zonas peatonales y áreas de parque.
+El prototipo corresponde a una maqueta de ciudad inteligente con calles, zonas urbanas y postes de alumbrado. Su función es representar un entorno realista donde se observa cómo el sistema responde a cambios de luz, presencia y consumo eléctrico.
 
 ### 4.2 Dispositivos utilizados
-- **ESP32:** microcontrolador con conectividad WiFi.
-- **BH1750:** sensor de luminosidad.
-- **PIR:** sensor de movimiento.
-- **SCT-013:** sensor de corriente para medir consumo eléctrico.
-- **DS18B20:** sensor de temperatura.
+- **ESP32:** microcontrolador principal encargado de leer sensores y coordinar el envío de datos.
+- **Sensores de luminosidad:** para medir variaciones de iluminación ambiental.
+- **Sensores de presencia o movimiento:** para detectar actividad en la zona.
+- **Sensores de corriente:** para estimar consumo eléctrico en el sistema de alumbrado.
+- **Sensores de temperatura:** para complementar el monitoreo del entorno.
 
 ### 4.3 Funcionamiento
-- El ESP32 lee los sensores y genera datos periódicos.
-- La maqueta simula condiciones de la ciudad: día/noche y presencia de personas.
-- Cuando baja la luminosidad y se detecta movimiento, el sistema activa la iluminación inteligente.
-- Los datos se envían a la base de datos para su procesamiento.
+- El ESP32 captura las lecturas de los sensores de forma periódica.
+- El sistema simula el comportamiento del alumbrado en una ciudad, encendiendo o reaccionando según el contexto.
+- Las lecturas permiten observar escenarios de día, noche y presencia de usuarios.
+- Los datos se envían al entorno de almacenamiento para su posterior consulta y análisis.
 
 ### 4.4 Evidencias
-- Fotos de la maqueta completa.
-- Fotos de los postes con sensores instalados.
-- Fotos de las conexiones del ESP32 y de los cables de alimentación.
+- Fotografía de la maqueta completa.
+- Fotografía de los postes y componentes electrónicos.
+- Fotografía de sensores y cableado.
+- Captura del prototipo encendido y en funcionamiento.
 
 ## 5. Publicación Web
 
 ### 5.1 Arquitectura Flask
-La aplicación Flask actúa como backend y frontend ligero:
-- **Backend:** `Flask` sirve APIs internas y consultas a la base de datos.
-- **Frontend:** plantillas Jinja2 renderizan la interfaz y el mapa Leaflet.
-- **Integración:** Flask recibe los datos de SQL Server, prepara JSON para el frontend y embebe Power BI en una vista principal.
+La publicación web fue organizada con Flask como backend ligero y como servidor del frontend construido para producción.
 
-La app está construida con:
-- `pyodbc` para conexión a SQL Server.
-- `Flask-Login` o sesión básica para autenticación mínima.
-- `Bootstrap` para diseño responsivo.
+- **Backend:** Flask expone las rutas mínimas necesarias para salud, navegación y entrega de la aplicación.
+- **Frontend:** Vue 3 renderiza la interfaz de usuario y organiza la navegación del sitio.
+- **Integración:** el proyecto se despliega en Docker y se publica en Render como un servicio web estable.
+
+La versión final prioriza estabilidad y despliegue reproducible. En la etapa de validación se redujo la dependencia de servicios externos durante el arranque para evitar fallos por conexión y asegurar que la publicación web responda correctamente.
 
 ### 5.2 Integración Power BI
-El dashboard de Power BI se integra en el sitio mediante un iframe embebido. Esto permite mostrar:
-- KPI de consumo y alertas.
-- Tendencias temporales.
-- Comparaciones por zona y dispositivo.
+Power BI forma parte central de la presentación analítica del proyecto. El dashboard debe mostrarse embebido o enlazado desde la publicación web, según la configuración elegida para la entrega.
 
-La publicación puede ser mediante Power BI Service o un reporte exportado como contenido web. El dashboard se refresca según el ciclo de actualización configurado.
+### Configuración a considerar
+- Publicación del reporte en Power BI Service.
+- Uso del enlace de inserción o iframe cuando la política de publicación lo permita.
+- Verificación del conjunto de datos conectado al DW.
+- Actualización de credenciales y permisos del espacio de trabajo.
+
+### Información a documentar en el informe final
+- Nombre del reporte.
+- URL pública o enlace de inserción.
+- Página principal del dashboard.
+- Métricas visibles: consumo, alertas, zonas, tendencias y estado del alumbrado.
 
 ### 5.3 Leaflet.js
-Se utiliza `Leaflet.js` para mostrar un mapa interactivo de los postes:
-- Los marcadores se cargan desde la tabla `dw.DimUbicacion`.
-- Cada marcador muestra estado, consumo y alertas del poste.
-- El mapa permite hacer zoom y seleccionar sectores para ver detalles.
+Leaflet.js se usa para el mapa interactivo del proyecto cuando se presenta la parte geográfica del sistema.
+
+- Los marcadores representan ubicaciones o postes.
+- Cada punto puede mostrar información de estado, consumo o alertas.
+- El mapa permite navegación visual por sectores.
 
 ### 5.4 Evidencias
-- Captura del portal web con el dashboard embebido.
-- Captura del mapa interactivo con marcadores activos.
-- Captura de la página de login y de las métricas principales.
+- Captura del sitio publicado funcionando.
+- Captura del mapa interactivo.
+- Captura del dashboard o sección analítica integrada.
+- Captura de la versión desplegada en Render.
 
 ## 6. Dashboard Publicado
-- **URL pública:** [Insertar URL pública o local].
-- **Navegación:** menú con acceso a la vista general, mapa y reportes.
-- **Filtros:** fecha, zona, tipo de sensor y estado de alertas.
-- **Experiencia:** el usuario accede a métricas en tiempo real y puede explorar datos geográficos.
+- **URL pública:** [Colocar URL de Render o del sitio publicado].
+- **Navegación:** acceso a la vista principal, arquitectura y estado general del proyecto.
+- **Filtros:** si el dashboard los incluye, documentar rango de fechas, zonas, dispositivos o estados.
+- **Relación con la base de datos:** indicar que el tablero consume la información preparada desde SQL Server y el DW.
 
 ## 7. Sustentación
 
 ### 7.1 Organización del video
-- **Duración:** 10-15 minutos.
-- **Estructura:** 1) presentación del problema, 2) demo de la maqueta, 3) explicación de SQL/ETL, 4) visualización Power BI, 5) portal Flask, 6) conclusiones.
+- **Duración sugerida:** 10 a 15 minutos.
+- **Estructura sugerida:** presentación del problema, prototipo IoT, base de datos y ETL, Power BI, publicación web, conclusiones.
 
 ### 7.2 Participación individual
-- **Integrante A:** explicación del prototipo IoT y la maqueta.
-- **Integrante B:** descripción de SQL Server, ETL y el Data Warehouse.
-- **Integrante C:** demostración de Power BI y la publicación en Flask.
+- **Integrante 1:** explicación del prototipo IoT y la maqueta.
+- **Integrante 2:** explicación de SQL Server, ETL y DW.
+- **Integrante 3:** explicación de Power BI y publicación web en Flask.
 
 ### 7.3 Evidencias
 - **YouTube:** [Insertar enlace del video].
-- **Capturas:** imágenes del video, pantallazos de navegación y slides de sustentación.
+- **Capturas:** incluir pantallas del video, presentación y sustentación.
 
 ## 8. Demostración Técnica
-En la demostración se muestra:
-- Ejecución del proceso ETL en SQL Server.
-- Carga y transformación de datos hacia el DW.
-- Actualización de visuales en Power BI.
-- Navegación del portal Flask y el mapa Leaflet.
-- Funcionamiento de la maqueta IoT.
+La demostración técnica debe mostrar, en orden, el funcionamiento real de la solución:
+
+- SQL Server con la base operacional o pública utilizada para pruebas.
+- Proceso ETL ejecutado y carga al Data Warehouse.
+- Power BI con el dashboard conectado al modelo analítico.
+- Flask publicado en Render y accesible por URL.
+- Maqueta IoT y sensores funcionando como evidencia física del prototipo.
 
 ## 9. Resultados Finales
-- **Beneficios:** gestión inteligente del alumbrado, mayor eficiencia energética, monitoreo centralizado y mejor respuesta ante alertas.
-- **Análisis:** se identifican zonas de mayor consumo y patrones de actividad por hora.
-- **Funcionamiento:** el sistema opera como un ciclo completo de captura, transformación, análisis y publicación.
+- El proyecto logró integrar la adquisición de datos, su procesamiento y la visualización final.
+- La solución permite explicar el ciclo completo de una ciudad inteligente aplicada al alumbrado.
+- La publicación web facilita la demostración pública y la sustentación técnica.
+- El modelo analítico en Power BI aporta una lectura comprensible del comportamiento del sistema.
 
 ## 10. Conclusiones Generales
-El proyecto integra IoT, Big Data y visualización para construir una solución real de ciudad inteligente. La propuesta demuestra que los datos pueden convertir el alumbrado público en un servicio más eficiente y seguro. La arquitectura final es escalable y permite futuras ampliaciones, como predicción de fallas o gestión multiciudad.
+La entrega final demuestra la integración de IoT, Big Data y visualización en una propuesta de ciudad inteligente. El proyecto conecta el prototipo físico con SQL Server, ETL, Data Warehouse, Power BI y Flask, logrando una solución coherente de principio a fin.
+
+La principal utilidad del sistema es convertir datos operacionales en información visual y útil para la toma de decisiones. Además, el uso de publicación web y de una base de datos pública como Somee facilita la demostración y el acceso al proyecto desde un entorno real de despliegue.
