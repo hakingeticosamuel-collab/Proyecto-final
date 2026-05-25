@@ -91,6 +91,50 @@ def record_audit(user_id, username, action, detail=None):
         pass
 
 
+def fetch_project_records(limit=8, status=None, device=None, start_date=None, end_date=None):
+    records = []
+    safe_limit = max(1, min(int(limit), 100))
+    filters = []
+    params = []
+
+    if status:
+        filters.append("Status = ?")
+        params.append(status)
+
+    if device:
+        filters.append("DeviceId LIKE ?")
+        params.append(f"%{device}%")
+
+    if start_date:
+        filters.append("MeasurementDate >= ?")
+        params.append(start_date)
+
+    if end_date:
+        filters.append("MeasurementDate < DATEADD(day, 1, ?)")
+        params.append(end_date)
+
+    where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                f"SELECT TOP {safe_limit} RecordId, DeviceId, MeasurementDate, Value, Status, CreatedAt "
+                f"FROM project_records {where_clause} ORDER BY MeasurementDate DESC, RecordId DESC",
+                params,
+            )
+            for row in cursor:
+                records.append(
+                    {
+                        "id": row[0],
+                        "device_id": row[1],
+                        "measurement_date": row[2].isoformat() if row[2] else None,
+                        "value": float(row[3]) if row[3] is not None else 0,
+                        "status": row[4] or "Activo",
+                        "created_at": row[5].isoformat() if row[5] else None,
+                    }
+                )
+    return records
+
+
 @app.route("/")
 @login_required
 def index():
@@ -100,6 +144,11 @@ def index():
         "alertas_activas": 0,
         "consumo_promedio": 0,
     }
+    project_records = []
+    selected_status = request.args.get("status", "").strip()
+    selected_device = request.args.get("device", "").strip()
+    selected_start_date = request.args.get("start_date", "").strip()
+    selected_end_date = request.args.get("end_date", "").strip()
 
     try:
         with get_connection() as conn:
@@ -110,17 +159,24 @@ def index():
                 )
                 metrics["postes_activos"] = query_single_value(
                     cursor,
-                    "SELECT COUNT(DISTINCT PostId) FROM dw.FactMediciones",
+                    "SELECT COUNT(DISTINCT UbicacionKey) FROM dw.FactMediciones",
                 )
                 metrics["alertas_activas"] = query_single_value(
                     cursor,
-                    "SELECT COUNT(1) FROM dw.FactMediciones WHERE EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL",
+                    "SELECT COUNT(1) FROM dw.FactMediciones WHERE AlertasGeneradas = 1 OR EstadoKey IN (2, 3, 4, 5)",
                 )
                 metrics["consumo_promedio"] = query_single_value(
                     cursor,
                     "SELECT AVG(ConsumoKwh) FROM dw.FactMediciones",
                     fallback=0,
                 )
+        project_records = fetch_project_records(
+            limit=8,
+            status=selected_status or None,
+            device=selected_device or None,
+            start_date=selected_start_date or None,
+            end_date=selected_end_date or None,
+        )
     except Exception:
         app.logger.exception("Error loading index metrics")
         flash(
@@ -132,6 +188,11 @@ def index():
         "index.html",
         metrics=metrics,
         powerbi_url=POWERBI_URL,
+        project_records=project_records,
+        selected_status=selected_status,
+        selected_device=selected_device,
+        selected_start_date=selected_start_date,
+        selected_end_date=selected_end_date,
     )
 
 
@@ -319,24 +380,19 @@ def api_public_metrics():
 
 @app.route("/api/public/records")
 def api_public_records():
-    records = []
+    status = request.args.get("status", "").strip() or None
+    device = request.args.get("device", "").strip() or None
+    start_date = request.args.get("start_date", "").strip() or None
+    end_date = request.args.get("end_date", "").strip() or None
+
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT TOP 50 RecordId, DeviceId, MeasurementDate, Value, Status "
-                    "FROM project_records ORDER BY MeasurementDate DESC"
-                )
-                for row in cursor:
-                    records.append(
-                        {
-                            "id": row[0],
-                            "device_id": row[1],
-                            "measurement_date": row[2].isoformat() if row[2] else None,
-                            "value": float(row[3]) if row[3] is not None else 0,
-                            "status": row[4] or "Activo",
-                        }
-                    )
+        records = fetch_project_records(
+            limit=50,
+            status=status,
+            device=device,
+            start_date=start_date,
+            end_date=end_date,
+        )
     except Exception:
         app.logger.exception("Error loading public records")
         return jsonify({"error": "No se pudieron cargar los registros."}), 500

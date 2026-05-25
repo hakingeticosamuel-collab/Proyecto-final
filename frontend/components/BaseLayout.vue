@@ -20,7 +20,14 @@
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Ver informe</button>
+          <button
+            @click="go('dashboard')"
+            type="button"
+            class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+          >
+            Volver al dashboard
+          </button>
+          <button @click="go('reportes')" type="button" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Ver informe</button>
           <button class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Contacto</button>
         </div>
       </header>

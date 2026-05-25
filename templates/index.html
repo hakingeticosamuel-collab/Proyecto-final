@@ -40,6 +40,94 @@
   </div>
 </div>
 
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+      <div>
+        <h5 class="mb-1">Ventana de registros Somee</h5>
+        <p class="mb-0 text-muted">Timeline visual de recopilación de datos con filtros por estado, dispositivo y rango de fechas.</p>
+      </div>
+      <span class="badge text-bg-primary">{{ project_records|length }} registros recientes</span>
+    </div>
+
+    <form class="row g-3 mb-4" method="get" action="{{ url_for('index') }}">
+      <div class="col-md-4 col-lg-3">
+        <label class="form-label small text-uppercase text-muted">Estado</label>
+        <select name="status" class="form-select">
+          <option value="" {% if not selected_status %}selected{% endif %}>Todos</option>
+          <option value="Activo" {% if selected_status == 'Activo' %}selected{% endif %}>Activo</option>
+          <option value="Inactivo" {% if selected_status == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+        </select>
+      </div>
+      <div class="col-md-5 col-lg-4">
+        <label class="form-label small text-uppercase text-muted">Dispositivo</label>
+        <input type="text" name="device" class="form-control" value="{{ selected_device }}" placeholder="Ej. Poste-01" />
+      </div>
+      <div class="col-md-3 col-lg-2">
+        <label class="form-label small text-uppercase text-muted">Fecha inicio</label>
+        <input type="date" name="start_date" class="form-control" value="{{ selected_start_date }}" />
+      </div>
+      <div class="col-md-3 col-lg-2">
+        <label class="form-label small text-uppercase text-muted">Fecha fin</label>
+        <input type="date" name="end_date" class="form-control" value="{{ selected_end_date }}" />
+      </div>
+      <div class="col-md-12 col-lg-1 d-flex align-items-end">
+        <div class="d-grid gap-2 w-100">
+          <button type="submit" class="btn btn-primary">Filtrar</button>
+          <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+      </div>
+    </form>
+
+    {% if project_records %}
+    <div class="position-relative ps-4">
+      <div class="position-absolute top-0 bottom-0 start-0 ms-2 border-start border-2 border-primary opacity-25"></div>
+      <div class="d-grid gap-4">
+        {% for record in project_records %}
+        <article class="card border-0 shadow-sm position-relative {% if record.status|lower == 'activo' %}border-start border-success border-4{% elif record.status|lower == 'inactivo' %}border-start border-secondary border-4{% else %}border-start border-primary border-4{% endif %}">
+          <div class="position-absolute top-0 start-0 translate-middle ms-4 mt-4 rounded-circle {% if record.status|lower == 'activo' %}bg-success{% elif record.status|lower == 'inactivo' %}bg-secondary{% else %}bg-primary{% endif %}" style="width: 14px; height: 14px;"></div>
+          <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
+              <div class="flex-grow-1">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                  <p class="mb-0 fw-semibold fs-5">{{ record.device_id }}</p>
+                  <span class="badge {% if record.status|lower == 'activo' %}text-bg-success{% elif record.status|lower == 'inactivo' %}text-bg-secondary{% else %}text-bg-primary{% endif %}">{{ record.status }}</span>
+                </div>
+                <div class="row g-3 small">
+                  <div class="col-md-4">
+                    <div class="text-uppercase text-muted small">Fecha de medición</div>
+                    <div class="fw-semibold">{{ record.measurement_date[:19] if record.measurement_date else '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-uppercase text-muted small">Fecha de carga</div>
+                    <div class="fw-semibold">{{ record.created_at[:19] if record.created_at else '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-uppercase text-muted small">Registro</div>
+                    <div class="fw-semibold">#{{ record.id }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-4 bg-light px-4 py-3 text-lg-end">
+                <div class="text-uppercase text-muted small">Valor destacado</div>
+                <div class="display-6 fw-bold mb-0">{{ record.value | round(2) }}</div>
+                <div class="text-muted small">Unidades capturadas desde Somee</div>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="rounded-4 border border-dashed border-secondary-subtle bg-light p-4 text-muted">
+      No hay registros en Somee para los filtros seleccionados.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-6">
     <div class="card shadow-sm border-0 p-3 mb-3">
