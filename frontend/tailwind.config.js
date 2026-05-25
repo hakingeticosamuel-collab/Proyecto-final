@@ -1,5 +1,12 @@
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,vue}', './**/*.{vue,js}'],
+  content: [
+    './index.html',
+    './App.vue',
+    './main.js',
+    './components/**/*.{vue,js,ts}',
+    './assets/**/*.{vue,js,ts}',
+    './src/**/*.{vue,js,ts}',
+  ],
   theme: {
     extend: {
       boxShadow: {
