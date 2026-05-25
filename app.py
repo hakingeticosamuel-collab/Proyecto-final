@@ -148,7 +148,18 @@ def api_public_locations():
         with get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT TOP 200 UbicacionId, NombreUbicacion, Latitud, Longitud, Estado, ConsumoKwh FROM dw.DimUbicacion"
+                    "SELECT TOP 200 "
+                    "u.UbicacionId, u.NombreUbicacion, u.Latitud, u.Longitud, u.Estado, u.ConsumoKwh, "
+                    "agg.UltimaFecha, agg.TotalAlertas, agg.PromedioConsumo "
+                    "FROM dw.DimUbicacion u "
+                    "LEFT JOIN ( "
+                    "    SELECT PostId, MAX(FechaCarga) AS UltimaFecha, "
+                    "           SUM(CASE WHEN EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL THEN 1 ELSE 0 END) AS TotalAlertas, "
+                    "           AVG(ConsumoKwh) AS PromedioConsumo "
+                    "    FROM dw.FactMediciones "
+                    "    GROUP BY PostId "
+                    ") agg ON agg.PostId = u.UbicacionId "
+                    "ORDER BY u.NombreUbicacion"
                 )
                 for row in cursor:
                     locations.append(
@@ -159,12 +170,104 @@ def api_public_locations():
                             "lng": float(row[3]) if row[3] is not None else 0,
                             "status": row[4] or "Desconocido",
                             "consumo": float(row[5]) if row[5] is not None else 0,
+                            "last_measurement": row[6].isoformat() if row[6] else None,
+                            "alert_count": int(row[7]) if row[7] is not None else 0,
+                            "average_consumption": float(row[8]) if row[8] is not None else 0,
                         }
                     )
     except Exception:
         app.logger.exception("Error loading public locations")
         return jsonify({"error": "No se pudieron cargar las ubicaciones."}), 500
     return jsonify(locations)
+
+
+@app.route("/api/public/report-summary")
+def api_public_report_summary():
+    summary = {
+        "total_locations": 0,
+        "locations_with_coordinates": 0,
+        "measurement_count": 0,
+        "alert_count": 0,
+        "average_consumption": 0,
+    }
+    recent_measurements = []
+    top_locations = []
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                summary["total_locations"] = query_single_value(cursor, "SELECT COUNT(1) FROM dw.DimUbicacion")
+                summary["locations_with_coordinates"] = query_single_value(
+                    cursor,
+                    "SELECT COUNT(1) FROM dw.DimUbicacion WHERE Latitud IS NOT NULL AND Longitud IS NOT NULL",
+                )
+                summary["measurement_count"] = query_single_value(cursor, "SELECT COUNT(1) FROM dw.FactMediciones")
+                summary["alert_count"] = query_single_value(
+                    cursor,
+                    "SELECT COUNT(1) FROM dw.FactMediciones WHERE EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL",
+                )
+                summary["average_consumption"] = query_single_value(
+                    cursor,
+                    "SELECT AVG(ConsumoKwh) FROM dw.FactMediciones",
+                    fallback=0,
+                )
+
+                cursor.execute(
+                    "SELECT TOP 8 "
+                    "f.PostId, "
+                    "COALESCE(u.NombreUbicacion, CONCAT('Poste ', CAST(f.PostId AS NVARCHAR(32)))) AS NombreUbicacion, "
+                    "f.FechaCarga, f.ConsumoKwh, "
+                    "COALESCE(f.EstadoAlerta, 'Sin alerta') AS EstadoAlerta, "
+                    "f.AlertLevel "
+                    "FROM dw.FactMediciones f "
+                    "LEFT JOIN dw.DimUbicacion u ON u.UbicacionId = f.PostId "
+                    "ORDER BY f.FechaCarga DESC"
+                )
+                for row in cursor:
+                    recent_measurements.append(
+                        {
+                            "post_id": row[0],
+                            "location": row[1],
+                            "measurement_date": row[2].isoformat() if row[2] else None,
+                            "consumo": float(row[3]) if row[3] is not None else 0,
+                            "alert_status": row[4] or "Sin alerta",
+                            "alert_level": row[5],
+                        }
+                    )
+
+                cursor.execute(
+                    "SELECT TOP 5 "
+                    "u.UbicacionId, u.NombreUbicacion, u.Estado, u.ConsumoKwh, "
+                    "ISNULL(agg.TotalAlertas, 0) AS TotalAlertas "
+                    "FROM dw.DimUbicacion u "
+                    "LEFT JOIN ( "
+                    "    SELECT PostId, SUM(CASE WHEN EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL THEN 1 ELSE 0 END) AS TotalAlertas "
+                    "    FROM dw.FactMediciones "
+                    "    GROUP BY PostId "
+                    ") agg ON agg.PostId = u.UbicacionId "
+                    "ORDER BY ISNULL(u.ConsumoKwh, 0) DESC, u.NombreUbicacion"
+                )
+                for row in cursor:
+                    top_locations.append(
+                        {
+                            "id": row[0],
+                            "name": row[1],
+                            "status": row[2] or "Desconocido",
+                            "consumo": float(row[3]) if row[3] is not None else 0,
+                            "alert_count": int(row[4]) if row[4] is not None else 0,
+                        }
+                    )
+    except Exception:
+        app.logger.exception("Error loading public report summary")
+        return jsonify({"error": "No se pudo cargar el resumen de reportes."}), 500
+
+    return jsonify(
+        {
+            "summary": summary,
+            "recent_measurements": recent_measurements,
+            "top_locations": top_locations,
+        }
+    )
 
 
 @app.route("/api/public/metrics")
