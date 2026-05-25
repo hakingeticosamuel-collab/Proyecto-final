@@ -149,16 +149,18 @@ def api_public_locations():
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT TOP 200 "
-                    "u.UbicacionId, u.NombreUbicacion, u.Latitud, u.Longitud, u.Estado, u.ConsumoKwh, "
+                    "u.UbicacionKey, u.NombreUbicacion, u.Latitud, u.Longitud, "
+                    "CASE WHEN u.Activo = 1 THEN 'Activo' ELSE 'Inactivo' END AS Estado, "
+                    "ISNULL(agg.PromedioConsumo, 0) AS ConsumoKwh, "
                     "agg.UltimaFecha, agg.TotalAlertas, agg.PromedioConsumo "
                     "FROM dw.DimUbicacion u "
                     "LEFT JOIN ( "
-                    "    SELECT PostId, MAX(FechaCarga) AS UltimaFecha, "
-                    "           SUM(CASE WHEN EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL THEN 1 ELSE 0 END) AS TotalAlertas, "
+                    "    SELECT UbicacionKey, MAX(FechaCarga) AS UltimaFecha, "
+                    "           SUM(CASE WHEN AlertasGeneradas = 1 THEN 1 ELSE 0 END) AS TotalAlertas, "
                     "           AVG(ConsumoKwh) AS PromedioConsumo "
                     "    FROM dw.FactMediciones "
-                    "    GROUP BY PostId "
-                    ") agg ON agg.PostId = u.UbicacionId "
+                    "    GROUP BY UbicacionKey "
+                    ") agg ON agg.UbicacionKey = u.UbicacionKey "
                     "ORDER BY u.NombreUbicacion"
                 )
                 for row in cursor:
@@ -204,7 +206,7 @@ def api_public_report_summary():
                 summary["measurement_count"] = query_single_value(cursor, "SELECT COUNT(1) FROM dw.FactMediciones")
                 summary["alert_count"] = query_single_value(
                     cursor,
-                    "SELECT COUNT(1) FROM dw.FactMediciones WHERE EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL",
+                    "SELECT COUNT(1) FROM dw.FactMediciones WHERE AlertasGeneradas = 1 OR EstadoKey IN (2, 3, 4, 5)",
                 )
                 summary["average_consumption"] = query_single_value(
                     cursor,
@@ -214,13 +216,16 @@ def api_public_report_summary():
 
                 cursor.execute(
                     "SELECT TOP 8 "
-                    "f.PostId, "
-                    "COALESCE(u.NombreUbicacion, CONCAT('Poste ', CAST(f.PostId AS NVARCHAR(32)))) AS NombreUbicacion, "
-                    "f.FechaCarga, f.ConsumoKwh, "
-                    "COALESCE(f.EstadoAlerta, 'Sin alerta') AS EstadoAlerta, "
-                    "f.AlertLevel "
+                    "f.IdMedicionOrigen, "
+                    "COALESCE(u.NombreUbicacion, CONCAT('Ubicacion ', CAST(f.UbicacionKey AS NVARCHAR(32)))) AS NombreUbicacion, "
+                    "COALESCE(f.FechaCarga, CAST(t.Fecha AS datetime2)) AS FechaReferencia, "
+                    "f.ConsumoKwh, "
+                    "COALESCE(e.CodigoEstado, 'operativo_normal') AS EstadoActual, "
+                    "f.AlertasGeneradas "
                     "FROM dw.FactMediciones f "
-                    "LEFT JOIN dw.DimUbicacion u ON u.UbicacionId = f.PostId "
+                    "LEFT JOIN dw.DimUbicacion u ON u.UbicacionKey = f.UbicacionKey "
+                    "LEFT JOIN dw.DimTiempo t ON t.TiempoKey = f.TiempoKey "
+                    "LEFT JOIN dw.DimEstado e ON e.EstadoKey = f.EstadoKey "
                     "ORDER BY f.FechaCarga DESC"
                 )
                 for row in cursor:
@@ -237,15 +242,17 @@ def api_public_report_summary():
 
                 cursor.execute(
                     "SELECT TOP 5 "
-                    "u.UbicacionId, u.NombreUbicacion, u.Estado, u.ConsumoKwh, "
+                    "u.UbicacionKey, u.NombreUbicacion, "
+                    "CASE WHEN u.Activo = 1 THEN 'Activo' ELSE 'Inactivo' END AS EstadoActual, "
+                    "ISNULL(agg.PromedioConsumo, 0) AS ConsumoKwh, "
                     "ISNULL(agg.TotalAlertas, 0) AS TotalAlertas "
                     "FROM dw.DimUbicacion u "
                     "LEFT JOIN ( "
-                    "    SELECT PostId, SUM(CASE WHEN EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL THEN 1 ELSE 0 END) AS TotalAlertas "
+                    "    SELECT UbicacionKey, SUM(CASE WHEN AlertasGeneradas = 1 THEN 1 ELSE 0 END) AS TotalAlertas, AVG(ConsumoKwh) AS PromedioConsumo "
                     "    FROM dw.FactMediciones "
-                    "    GROUP BY PostId "
-                    ") agg ON agg.PostId = u.UbicacionId "
-                    "ORDER BY ISNULL(u.ConsumoKwh, 0) DESC, u.NombreUbicacion"
+                    "    GROUP BY UbicacionKey "
+                    ") agg ON agg.UbicacionKey = u.UbicacionKey "
+                    "ORDER BY ISNULL(agg.PromedioConsumo, 0) DESC, u.NombreUbicacion"
                 )
                 for row in cursor:
                     top_locations.append(
@@ -293,13 +300,11 @@ def api_public_metrics():
                 row = cursor.fetchone()
                 metrics["total_mediciones"] = row[0] if row and row[0] is not None else 0
 
-                cursor.execute(f"SELECT COUNT(DISTINCT PostId) FROM dw.FactMediciones {date_filter}")
+                cursor.execute(f"SELECT COUNT(DISTINCT UbicacionKey) FROM dw.FactMediciones {date_filter}")
                 row = cursor.fetchone()
                 metrics["postes_activos"] = row[0] if row and row[0] is not None else 0
 
-                cursor.execute(
-                    f"SELECT COUNT(1) FROM dw.FactMediciones {date_filter} AND (EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL)"
-                )
+                cursor.execute(f"SELECT COUNT(1) FROM dw.FactMediciones {date_filter} AND (AlertasGeneradas = 1 OR EstadoKey IN (2, 3, 4, 5))")
                 row = cursor.fetchone()
                 metrics["alertas_activas"] = row[0] if row and row[0] is not None else 0
 
