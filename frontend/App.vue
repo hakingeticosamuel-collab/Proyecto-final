@@ -136,11 +136,6 @@
         </div>
       </div>
     </section>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <section id="mapa-interactivo" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-4 shadow-sm sm:p-6">
