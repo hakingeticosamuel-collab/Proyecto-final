@@ -15,20 +15,13 @@
             </span>
           </button>
           <div class="space-y-1">
-            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Paipa Smart Light</p>
-            <h1 class="text-2xl font-semibold tracking-tight text-slate-950">Portal de visualización pública</h1>
+            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Paipa Smart Light · Docker</p>
+            <h1 class="text-2xl font-semibold tracking-tight text-slate-950">Portal de despliegue estable</h1>
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button
-            @click="go('dashboard')"
-            type="button"
-            class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-          >
-            Volver al dashboard
-          </button>
-          <button @click="go('reportes')" type="button" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Ver informe</button>
-          <button class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Contacto</button>
+          <button @click="go('dashboard')" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Inicio</button>
+          <button @click="go('arquitectura')" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Arquitectura</button>
         </div>
       </header>
 
@@ -63,36 +56,36 @@
                   : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
               ]"
             >
-              Dashboard
+              Inicio
             </button>
             <button
-              @click="go('mapa')"
+              @click="go('arquitectura')"
               type="button"
               :class="[
                 'w-full text-left rounded-2xl px-4 py-3 transition',
-                selectedSection === 'mapa'
+                selectedSection === 'arquitectura'
                   ? 'bg-slate-950 text-white'
                   : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
               ]"
             >
-              Mapa
+              Arquitectura
             </button>
             <button
-              @click="go('reportes')"
+              @click="go('estado')"
               type="button"
               :class="[
                 'w-full text-left rounded-2xl px-4 py-3 transition',
-                selectedSection === 'reportes'
+                selectedSection === 'estado'
                   ? 'bg-slate-950 text-white'
                   : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
               ]"
             >
-              Reportes
+              Estado
             </button>
           </nav>
           <div class="mt-8 rounded-3xl border border-slate-200/80 bg-indigo-600/5 p-4">
             <p class="text-xs uppercase tracking-[0.24em] text-indigo-700/70">Estado</p>
-            <p class="mt-2 text-sm leading-6 text-slate-700">Sistema en línea. Datos sincronizados con Power BI y fuente ETL.</p>
+            <p class="mt-2 text-sm leading-6 text-slate-700">Modo Docker activo. Sin login, sin base de datos y sin servicios externos en el arranque.</p>
           </div>
         </aside>
 
