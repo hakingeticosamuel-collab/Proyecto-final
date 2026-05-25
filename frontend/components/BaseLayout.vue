@@ -1,0 +1,85 @@
+<template>
+  <div class="min-h-screen bg-slate-50 text-slate-900">
+    <div class="mx-auto flex h-full min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
+      <header class="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl sm:p-5">
+        <div class="flex items-center gap-4">
+          <button
+            @click="toggleSidebar"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            aria-label="Abrir menú"
+          >
+            <span class="block h-5 w-5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-full w-full">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            </span>
+          </button>
+          <div class="space-y-1">
+            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Paipa Smart Light</p>
+            <h1 class="text-2xl font-semibold tracking-tight text-slate-950">Portal de visualización pública</h1>
+          </div>
+        </div>
+        <div class="hidden items-center gap-3 sm:flex">
+          <button class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Ver informe</button>
+          <button class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Contacto</button>
+        </div>
+      </header>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
+        <aside
+          :class="[
+            'rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-sm backdrop-blur-xl transition-all',
+            sidebarOpen ? 'block' : 'hidden sm:block'
+          ]"
+        >
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs uppercase tracking-[0.26em] text-slate-500">Navegación</p>
+              <p class="text-base font-semibold text-slate-950">Explora el sistema</p>
+            </div>
+            <button
+              @click="sidebarOpen = false"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 sm:hidden"
+              aria-label="Cerrar menú"
+            >
+              ×
+            </button>
+          </div>
+          <nav class="mt-6 space-y-3 text-sm">
+            <a href="#dashboard" class="block rounded-2xl border border-transparent bg-slate-950 px-4 py-3 text-white transition hover:bg-slate-800">Dashboard</a>
+            <a href="#mapa" class="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 transition hover:border-slate-300">Mapa</a>
+            <a href="#reportes" class="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 transition hover:border-slate-300">Reportes</a>
+          </nav>
+          <div class="mt-8 rounded-3xl border border-slate-200/80 bg-indigo-600/5 p-4">
+            <p class="text-xs uppercase tracking-[0.24em] text-indigo-700/70">Estado</p>
+            <p class="mt-2 text-sm leading-6 text-slate-700">Sistema en línea. Datos sincronizados con Power BI y fuente ETL.</p>
+          </div>
+        </aside>
+
+        <main class="space-y-6">
+          <section class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+            <div class="space-y-4">
+              <slot name="hero"></slot>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <slot name="cards"></slot>
+            </div>
+          </section>
+
+          <section class="space-y-6">
+            <slot></slot>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+const sidebarOpen = ref(false)
+
+function toggleSidebar() {
+  sidebarOpen.value = !sidebarOpen.value
+}
+</script>

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4">
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3 h-100">
+        <div class="text-uppercase text-muted small">Mediciones</div>
+        <div class="display-6 fw-bold">{{ metrics.total_mediciones }}</div>
+        <div class="text-muted">Registros procesados</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3 h-100">
+        <div class="text-uppercase text-muted small">Postes</div>
+        <div class="display-6 fw-bold">{{ metrics.postes_activos }}</div>
+        <div class="text-muted">Ubicaciones únicas</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3 h-100">
+        <div class="text-uppercase text-muted small">Alertas</div>
+        <div class="display-6 fw-bold">{{ metrics.alertas_activas }}</div>
+        <div class="text-muted">Alertas activas</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3 h-100">
+        <div class="text-uppercase text-muted small">Consumo promedio</div>
+        <div class="display-6 fw-bold">{{ metrics.consumo_promedio | round(2) }}</div>
+        <div class="text-muted">kWh por registro</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-0">
+    <iframe src="{{ powerbi_url }}" title="Power BI Dashboard" class="w-100 iframe-embed"></iframe>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-3 mb-3">
+      <h5>Objetivo</h5>
+      <p class="mb-0">Este portal integra la vista analítica de Power BI junto con los datos operacionales del proyecto de alumbrado público inteligente en Paipa.</p>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-3 mb-3">
+      <h5>Cómo usar</h5>
+      <ul class="mb-0">
+        <li>Revise los KPIs en la parte superior.</li>
+        <li>Use el reporte de Power BI para analizar tendencias y zonas.</li>
+        <li>Vaya a la sección de mapa para ver la georreferenciación de postes.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

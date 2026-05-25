@@ -1,0 +1,15 @@
+body {
+  background: #f8fafc;
+}
+.iframe-embed {
+  min-height: 760px;
+  border: none;
+}
+.map-container {
+  min-height: 680px;
+  border-radius: 0.75rem;
+  border: 1px solid #d2d6dc;
+}
+.card {
+  border-radius: 1rem;
+}
