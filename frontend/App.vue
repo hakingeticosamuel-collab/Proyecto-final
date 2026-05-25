@@ -249,7 +249,20 @@ function buildQualityChart() {
       responsive: true,
       maintainAspectRatio: false,
       cutout: '75%',
-      plugins: { legend: { display: false }, tooltip: { enabled: true } }
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || '';
+              const value = context.parsed;
+              const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return ` ${label}: ${value} (${percentage}%)`;
+            }
+          }
+        }
+      }
     }
   })
 }
