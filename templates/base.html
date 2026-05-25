@@ -17,16 +17,18 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            {% if session.user %}
+            {% if not LOGIN_REQUIRED or session.user %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('map_view') }}">Mapa</a>
             </li>
+            {% if LOGIN_REQUIRED %}
             <li class="nav-item">
               <a class="nav-link text-danger" href="{{ url_for('logout') }}">Cerrar sesión</a>
             </li>
+            {% endif %}
             {% endif %}
           </ul>
         </div>

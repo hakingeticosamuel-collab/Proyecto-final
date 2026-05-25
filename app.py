@@ -13,7 +13,13 @@ app.config.update(
 
 LOGIN_USER = config.LOGIN_USER
 LOGIN_PASSWORD = config.LOGIN_PASSWORD
+LOGIN_REQUIRED = config.LOGIN_REQUIRED
 POWERBI_URL = config.POWERBI_URL
+
+
+@app.context_processor
+def inject_login_settings():
+    return {"LOGIN_REQUIRED": LOGIN_REQUIRED}
 
 
 def get_connection():
@@ -23,7 +29,7 @@ def get_connection():
 def login_required(view):
     @wraps(view)
     def wrapped_view(**kwargs):
-        if not session.get("user"):
+        if LOGIN_REQUIRED and not session.get("user"):
             return redirect(url_for("login"))
         return view(**kwargs)
 

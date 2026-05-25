@@ -16,6 +16,7 @@ POWERBI_URL = os.getenv(
 )
 LOGIN_USER = os.getenv("LOGIN_USER", "admin")
 LOGIN_PASSWORD = os.getenv("LOGIN_PASSWORD", "Alumbrado123")
+LOGIN_REQUIRED = os.getenv("LOGIN_REQUIRED", "false").lower() in ("1", "true", "yes")
 
 DATABASE_CONNECTION_STRING = (
     "DRIVER={ODBC Driver 18 for SQL Server};"
