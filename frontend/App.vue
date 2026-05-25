@@ -158,6 +158,7 @@ const sourceStatus = ref({ source: 'Somee/SQL Server', configured: false, mode: 
 const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] })
 const latestMeasurements = ref([])
 const chartData = ref({ daily_counts: [], sensor_counts: [] })
+const tableData = ref([])
 
 const sourceLabel = computed(() => {
   if (sourceStatus.value.mode === 'read-only') return 'Somee conectado en modo lectura'
@@ -170,6 +171,18 @@ const connectionDescription = computed(() => {
   if (sourceStatus.value.mode === 'error') return sourceStatus.value.error ? `Error Somee: ${sourceStatus.value.error}` : 'Credenciales presentes, pero no se pudo conectar a Somee.'
   return 'No hay credenciales Somee. Introduce usuario y contraseña para activar la lectura pública.'
 })
+
+async function fetchTableData() {
+  try {
+    const response = await fetch('/api/last-measurements?limit=20')
+    if (response.ok) {
+      const data = await response.json()
+      tableData.value = data.latest_mediciones || []
+    }
+  } catch (error) {
+    console.error('Error fetching table data:', error)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -199,10 +212,13 @@ onMounted(async () => {
       const chartsData = await chartsResponse.json()
       chartData.value = chartsData || { daily_counts: [], sensor_counts: [] }
     }
+
+    await fetchTableData()
   } catch {
     summary.value = { configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] }
     latestMeasurements.value = []
     chartData.value = { daily_counts: [], sensor_counts: [] }
+    tableData.value = []
   }
 })
 
@@ -216,5 +232,9 @@ function handleNavigate(section) {
 
 function goTo(section) {
   handleNavigate(section)
+}
+
+function refreshTable() {
+  fetchTableData()
 }
 </script>
