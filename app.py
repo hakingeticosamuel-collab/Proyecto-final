@@ -37,18 +37,17 @@ def source_status():
             'source': 'Somee/SQL Server',
             'mode': mode,
             'error': error,
-            'powerbi_url': os.environ.get('POWER_BI_URL', 'https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9'),
+            'powerbi_url': os.environ.get('POWERBI_URL') or os.environ.get('POWER_BI_URL') or 'https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9',
         }
     ), 200
 
 
 def get_somee_settings():
-    user = os.environ.get('SOMEE_USER') or os.environ.get('Hakingetico_SQLLogin_1 ')
     return {
-        'server': os.environ.get('SOMEE_SERVER') or 'iot_alumbrado_paipa.mssql.somee.com',
-        'database': os.environ.get('SOMEE_DATABASE') or 'iot_alumbrado_paipa',
-        'user': user,
-        'password': os.environ.get('p4iw2erhae'),
+        'server': os.environ.get('SQL_SERVER') or os.environ.get('SOMEE_SERVER') or 'iot_alumbrado_paipa.mssql.somee.com',
+        'database': os.environ.get('SQL_DATABASE') or os.environ.get('SOMEE_DATABASE') or 'iot_alumbrado_paipa',
+        'user': os.environ.get('SQL_USER') or os.environ.get('SOMEE_USER'),
+        'password': os.environ.get('SQL_PASSWORD') or os.environ.get('SOMEE_PASSWORD'),
     }
 
 
