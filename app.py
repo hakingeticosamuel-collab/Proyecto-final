@@ -135,9 +135,18 @@ def fetch_somee_chart_data():
         ORDER BY total_registros DESC
         """
     )
+    quality_counts = run_somee_query(
+        """
+        SELECT ISNULL(calidad_dato, 'Alerta') AS calidad,
+               COUNT(*) AS total
+        FROM dbo.medicion
+        GROUP BY calidad_dato
+        """
+    )
     return {
         'daily_counts': daily_counts,
         'sensor_counts': sensor_counts,
+        'quality_counts': quality_counts,
     }
 
 

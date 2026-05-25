@@ -156,18 +156,28 @@
           <div class="space-y-4">
             <h3 class="text-lg font-semibold text-slate-900">Gestión de Alertas y Tiempos</h3>
             <div class="rounded-2xl bg-slate-50 p-5 shadow-inner">
-              <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Criterios de Alerta</h4>
-              <p class="mt-2 text-sm text-slate-600 italic">El sistema marca registros como "Alerta" automáticamente cuando:</p>
-              <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-600 font-bold">●</span>
-                  <span><strong>Fuera de Rango:</strong> El valor capturado excede los límites configurados para el sensor (Min/Max).</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-600 font-bold">●</span>
-                  <span><strong>Falla de Nodo:</strong> El dispositivo reporta un estado de error o pérdida de conectividad intermitente.</span>
-                </li>
-              </ul>
+              <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
+                <div class="flex-1">
+                  <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Criterios de Alerta</h4>
+                  <p class="mt-2 text-sm text-slate-600 italic">El sistema marca registros como "Alerta" automáticamente cuando:</p>
+                  <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                    <li class="flex items-start gap-2">
+                      <span class="text-amber-600 font-bold">●</span>
+                      <span><strong>Fuera de Rango:</strong> El valor capturado excede los límites configurados para el sensor (Min/Max).</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                      <span class="text-amber-600 font-bold">●</span>
+                      <span><strong>Falla de Nodo:</strong> El dispositivo reporta un estado de error o pérdida de conectividad intermitente.</span>
+                    </li>
+                  </ul>
+                </div>
+                <div class="relative h-28 w-28 shrink-0">
+                  <canvas ref="qualityChartCanvas"></canvas>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase leading-none">Calidad</span>
+                  </div>
+                </div>
+              </div>
               <div class="mt-5 border-t border-slate-200 pt-4">
                 <p class="text-xs font-semibold text-slate-400 uppercase">Frecuencia de Actualización (SLA)</p>
                 <p class="mt-1 text-sm text-slate-600 font-medium font-mono">IoT: 60s | ETL: 15min | Power BI: Diario/Pro</p>
@@ -187,7 +197,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import BaseLayout from './components/BaseLayout.vue'
 import MetricCard from './components/MetricCard.vue'
 import LeafletMap from './components/LeafletMap.vue'
@@ -198,7 +208,9 @@ const selectedSection = ref('introduccion')
 const sourceStatus = ref({ source: 'Somee/SQL Server', configured: false, mode: 'unconfigured', powerbi_url: '' })
 const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] })
 const latestMeasurements = ref([])
-const chartData = ref({ daily_counts: [], sensor_counts: [] })
+const chartData = ref({ daily_counts: [], sensor_counts: [], quality_counts: [] })
+const qualityChartCanvas = ref(null)
+let qualityChart = null
 const tableData = ref([])
 
 const sourceLabel = computed(() => {
@@ -212,6 +224,35 @@ const connectionDescription = computed(() => {
   if (sourceStatus.value.mode === 'error') return sourceStatus.value.error ? `Error Somee: ${sourceStatus.value.error}` : 'Credenciales presentes, pero no se pudo conectar a Somee.'
   return 'No hay credenciales Somee. Introduce usuario y contraseña para activar la lectura pública.'
 })
+
+function buildQualityChart() {
+  if (!window?.Chart || !qualityChartCanvas.value) return
+  if (qualityChart) qualityChart.destroy()
+
+  const data = chartData.value.quality_counts?.length 
+    ? chartData.value.quality_counts 
+    : [{ calidad: 'Buena', total: 80 }, { calidad: 'Alerta', total: 20 }]
+
+  const ctx = qualityChartCanvas.value.getContext('2d')
+  qualityChart = new window.Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(d => d.calidad),
+      datasets: [{
+        data: data.map(d => d.total),
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '75%',
+      plugins: { legend: { display: false }, tooltip: { enabled: true } }
+    }
+  })
+}
 
 async function fetchTableData() {
   try {
@@ -251,8 +292,9 @@ onMounted(async () => {
 
     if (chartsResponse.ok) {
       const chartsData = await chartsResponse.json()
-      chartData.value = chartsData || { daily_counts: [], sensor_counts: [] }
+      chartData.value = chartsData || { daily_counts: [], sensor_counts: [], quality_counts: [] }
     }
+    buildQualityChart()
 
     await fetchTableData()
   } catch {
@@ -262,6 +304,8 @@ onMounted(async () => {
     tableData.value = []
   }
 })
+
+watch(chartData, buildQualityChart, { deep: true })
 
 function handleNavigate(section) {
   selectedSection.value = section
