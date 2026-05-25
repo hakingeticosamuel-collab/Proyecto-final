@@ -13,6 +13,7 @@
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('mapa-interactivo')">Ir al mapa</button>
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('datos-publicos')">Ver gráficas</button>
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('registros-datos')">Registros</button>
+            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('conclusiones-alertas')">Conclusiones</button>
           </div>
         </div>
       </div>
@@ -132,6 +133,46 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="conclusiones-alertas" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
+        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Resultados y Gestión</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Conclusiones y Alertas</h2>
+        
+        <div class="mt-8 grid gap-8 lg:grid-cols-2">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Conclusiones del Proyecto</h3>
+            <div class="space-y-3 text-sm leading-7 text-slate-600">
+              <p>• <strong>Integración E2E:</strong> Se logró conectar con éxito el hardware IoT con SQL Server, procesos ETL y visualización avanzada en Power BI, cubriendo todo el ciclo del dato.</p>
+              <p>• <strong>Toma de Decisiones:</strong> El Data Warehouse permite analizar patrones históricos de consumo, facilitando el mantenimiento preventivo del alumbrado público.</p>
+              <p>• <strong>Escalabilidad:</strong> La arquitectura basada en Docker y Render permite que el portal sea accesible globalmente con alta disponibilidad para la supervisión ciudadana.</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Gestión de Alertas y Tiempos</h3>
+            <div class="rounded-2xl bg-slate-50 p-5 shadow-inner">
+              <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Criterios de Alerta</h4>
+              <p class="mt-2 text-sm text-slate-600 italic">El sistema marca registros como "Alerta" automáticamente cuando:</p>
+              <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold">●</span>
+                  <span><strong>Fuera de Rango:</strong> El valor capturado excede los límites configurados para el sensor (Min/Max).</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-600 font-bold">●</span>
+                  <span><strong>Falla de Nodo:</strong> El dispositivo reporta un estado de error o pérdida de conectividad intermitente.</span>
+                </li>
+              </ul>
+              <div class="mt-5 border-t border-slate-200 pt-4">
+                <p class="text-xs font-semibold text-slate-400 uppercase">Frecuencia de Actualización (SLA)</p>
+                <p class="mt-1 text-sm text-slate-600 font-medium font-mono">IoT: 60s | ETL: 15min | Power BI: Diario/Pro</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

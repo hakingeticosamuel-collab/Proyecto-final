@@ -49,6 +49,7 @@
             <button @click="go('datos-publicos')" type="button" :class="buttonClass('datos-publicos')">Datos públicos</button>
             <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard público</button>
             <button @click="go('registros-datos')" type="button" :class="buttonClass('registros-datos')">Registros de tablas</button>
+            <button @click="go('conclusiones-alertas')" type="button" :class="buttonClass('conclusiones-alertas')">Conclusiones</button>
             <button @click="go('mapa-interactivo')" type="button" :class="buttonClass('mapa-interactivo')">Mapa interactivo</button>
           </nav>
           <div class="mt-8 rounded-[20px] border border-slate-200/80 bg-slate-50 p-4">
