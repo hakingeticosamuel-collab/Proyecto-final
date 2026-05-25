@@ -15,13 +15,12 @@
             </span>
           </button>
           <div class="space-y-1">
-            <p class="text-sm uppercase tracking-[0.24em] text-slate-500">Paipa Smart Light · Docker</p>
-            <h1 class="text-2xl font-semibold tracking-tight text-slate-950">Portal de despliegue estable</h1>
+            <p class="text-sm uppercase tracking-wider text-slate-400">Paipa Smart Light</p>
+            <h1 class="text-lg font-semibold tracking-tight text-slate-900">Portal público</h1>
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button @click="go('portada')" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Portada</button>
-          <button @click="go('arquitectura')" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Arquitectura</button>
+          <button @click="go('dashboard-publicado')" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700">Abrir dashboard</button>
         </div>
       </header>
 
