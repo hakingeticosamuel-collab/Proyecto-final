@@ -46,9 +46,42 @@
             </button>
           </div>
           <nav class="mt-6 space-y-3 text-sm">
-            <a href="#dashboard" class="block rounded-2xl border border-transparent bg-slate-950 px-4 py-3 text-white transition hover:bg-slate-800">Dashboard</a>
-            <a href="#mapa" class="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 transition hover:border-slate-300">Mapa</a>
-            <a href="#reportes" class="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 transition hover:border-slate-300">Reportes</a>
+            <button
+              @click="go('dashboard')"
+              type="button"
+              :class="[
+                'w-full text-left rounded-2xl px-4 py-3 transition',
+                selectedSection === 'dashboard'
+                  ? 'bg-slate-950 text-white'
+                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
+              ]"
+            >
+              Dashboard
+            </button>
+            <button
+              @click="go('mapa')"
+              type="button"
+              :class="[
+                'w-full text-left rounded-2xl px-4 py-3 transition',
+                selectedSection === 'mapa'
+                  ? 'bg-slate-950 text-white'
+                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
+              ]"
+            >
+              Mapa
+            </button>
+            <button
+              @click="go('reportes')"
+              type="button"
+              :class="[
+                'w-full text-left rounded-2xl px-4 py-3 transition',
+                selectedSection === 'reportes'
+                  ? 'bg-slate-950 text-white'
+                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
+              ]"
+            >
+              Reportes
+            </button>
           </nav>
           <div class="mt-8 rounded-3xl border border-slate-200/80 bg-indigo-600/5 p-4">
             <p class="text-xs uppercase tracking-[0.24em] text-indigo-700/70">Estado</p>
@@ -77,9 +110,21 @@
 
 <script setup>
 import { ref } from 'vue'
+const props = defineProps({
+  selectedSection: {
+    type: String,
+    default: 'dashboard',
+  },
+})
+const emit = defineEmits(['navigate'])
 const sidebarOpen = ref(false)
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
+}
+
+function go(section) {
+  sidebarOpen.value = false
+  emit('navigate', section)
 }
 </script>

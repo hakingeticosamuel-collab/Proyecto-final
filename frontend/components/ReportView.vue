@@ -47,7 +47,7 @@
       </div>
       <iframe
         v-show="!isLoading"
-        :src="src"
+        :src="iframeSrc"
         class="h-[720px] w-full border-0"
         @load="handleLoaded"
       />
@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   src: {
@@ -72,6 +72,14 @@ const props = defineProps({
 const emit = defineEmits(['refresh', 'download'])
 
 const isLoading = ref(true)
+const iframeSrc = ref(`${props.src}?_=${Date.now()}`)
+
+watch(
+  () => props.src,
+  (value) => {
+    iframeSrc.value = `${value}?_=${Date.now()}`
+  }
+)
 
 function handleLoaded() {
   isLoading.value = false
@@ -79,16 +87,16 @@ function handleLoaded() {
 
 function refreshReport() {
   isLoading.value = true
+  iframeSrc.value = `${props.src}?_=${Date.now()}`
   emit('refresh')
-  window.location.reload()
 }
 
 function downloadReport() {
   emit('download')
-  window.open(src, '_blank')
+  window.open(props.src, '_blank')
 }
 
 function handleExpand() {
-  window.open(src, '_blank')
+  window.open(props.src, '_blank')
 }
 </script>

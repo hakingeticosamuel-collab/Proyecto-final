@@ -175,22 +175,32 @@ def api_public_metrics():
         "alertas_activas": 0,
         "consumo_promedio": 0,
     }
+    period = request.args.get("period", "7d")
+    if period == "24h":
+        date_filter = "WHERE FechaCarga >= DATEADD(hour, -24, SYSUTCDATETIME())"
+    elif period == "30d":
+        date_filter = "WHERE FechaCarga >= DATEADD(day, -30, SYSUTCDATETIME())"
+    else:
+        date_filter = "WHERE FechaCarga >= DATEADD(day, -7, SYSUTCDATETIME())"
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT COUNT(1) FROM dw.FactMediciones")
+                cursor.execute(f"SELECT COUNT(1) FROM dw.FactMediciones {date_filter}")
                 row = cursor.fetchone()
                 metrics["total_mediciones"] = row[0] if row and row[0] is not None else 0
 
-                cursor.execute("SELECT COUNT(DISTINCT PostId) FROM dw.FactMediciones")
+                cursor.execute(f"SELECT COUNT(DISTINCT PostId) FROM dw.FactMediciones {date_filter}")
                 row = cursor.fetchone()
                 metrics["postes_activos"] = row[0] if row and row[0] is not None else 0
 
-                cursor.execute("SELECT COUNT(1) FROM dw.FactMediciones WHERE EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL")
+                cursor.execute(
+                    f"SELECT COUNT(1) FROM dw.FactMediciones {date_filter} AND (EstadoAlerta = 'Activa' OR AlertLevel IS NOT NULL)"
+                )
                 row = cursor.fetchone()
                 metrics["alertas_activas"] = row[0] if row and row[0] is not None else 0
 
-                cursor.execute("SELECT AVG(ConsumoKwh) FROM dw.FactMediciones")
+                cursor.execute(f"SELECT AVG(ConsumoKwh) FROM dw.FactMediciones {date_filter}")
                 row = cursor.fetchone()
                 metrics["consumo_promedio"] = float(row[0]) if row and row[0] is not None else 0
     except Exception:
