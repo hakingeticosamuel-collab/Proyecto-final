@@ -26,9 +26,24 @@
 
     <section id="introduccion" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Introducción</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Proyecto público Paipa Smart Light</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">Este portal muestra el proyecto de alumbrado inteligente en Paipa con datos públicos de Somee/SQL Server, un dashboard Power BI embebido y un mapa interactivo de la solución.</p>
+        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Introducción y Funcionamiento</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Sistema Inteligente de Alumbrado</h2>
+        <div class="mt-4 grid gap-8 md:grid-cols-2">
+          <div>
+            <h3 class="text-lg font-medium text-slate-900">¿Cómo funciona?</h3>
+            <p class="mt-2 text-sm leading-7 text-slate-600">
+              El sistema captura datos en tiempo real mediante nodos IoT (ESP32). Estos datos son enviados a una base de datos <strong>SQL Server (Somee)</strong>, procesados mediante un flujo ETL hacia un Data Warehouse y finalmente visualizados aquí mediante Power BI y gráficas nativas.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-lg font-medium text-slate-900">Beneficios clave</h3>
+            <ul class="mt-2 list-inside list-disc text-sm leading-7 text-slate-600">
+              <li><strong>Eficiencia energética:</strong> Reducción de consumo mediante dimerización automática.</li>
+              <li><strong>Mantenimiento preventivo:</strong> Detección de fallos en tiempo real.</li>
+              <li><strong>Seguridad ciudadana:</strong> Iluminación dinámica según la presencia detectada.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -51,7 +66,7 @@
                 <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Integrado</span>
               </div>
               <div class="mt-4 rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm">
-                <ReportView :reportUrl="sourceStatus.powerbi_url || ''" />
+                <ReportView :reportUrl="sourceStatus.powerbi_url || ''" class="min-h-[400px]" />
               </div>
             </div>
           </div>

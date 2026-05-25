@@ -6,7 +6,7 @@
           <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Gráficas Somee</p>
           <h2 class="mt-2 text-2xl font-semibold text-slate-950">Visualizaciones interactivas de los datos</h2>
         </div>
-        <p class="max-w-xl text-sm leading-7 text-slate-600">Gráficos con información derivada de los registros Somee para acompañar el dashboard Power BI y ofrecer indicadores KPI en la misma web.</p>
+        <p class="max-w-xl text-sm leading-7 text-slate-600">Análisis detallado de mediciones. Para <strong>filtros avanzados</strong> de fechas y sensores, utilice el reporte de Power BI en la sección inferior.</p>
       </div>
       <div v-if="!hasRealData" class="mt-8 rounded-[24px] border border-amber-200 bg-amber-50 p-8 text-center text-sm text-slate-700">No se encontraron registros Somee reales; se muestra información de demostración para mantener la visualización.</div>
       <div class="mt-8 space-y-6">
@@ -35,16 +35,20 @@
                 <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Tendencia</p>
                 <h3 class="text-lg font-semibold text-slate-950">Mediciones por día</h3>
               </div>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Interactivo</span>
+              <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 sm:inline">Interactivo</span>
             </div>
-            <canvas ref="dailyChartCanvas" class="w-full min-h-[320px]"></canvas>
+            <div class="relative h-[320px] w-full">
+              <canvas ref="dailyChartCanvas"></canvas>
+            </div>
           </div>
 
           <div class="space-y-4">
             <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
               <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Distribución</p>
               <h3 class="mt-2 text-lg font-semibold text-slate-950">Registros por sensor</h3>
-              <canvas ref="sensorChartCanvas" class="mt-5 w-full min-h-[260px]"></canvas>
+              <div class="relative mt-5 h-[260px] w-full">
+                <canvas ref="sensorChartCanvas"></canvas>
+              </div>
             </div>
             <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
               <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Indicadores</p>
@@ -115,8 +119,8 @@ const lastDate = computed(() => {
 })
 
 const topSensor = computed(() => {
-  if (!props.chartData.sensor_counts.length) return { name: '—', total: 0 }
-  const top = props.chartData.sensor_counts.reduce((prev, current) => (+current.total_registros > +prev.total_registros ? current : prev), props.chartData.sensor_counts[0])
+  if (!activeChartData.value.sensor_counts.length) return { name: '—', total: 0 }
+  const top = activeChartData.value.sensor_counts.reduce((prev, current) => (+current.total_registros > +prev.total_registros ? current : prev), activeChartData.value.sensor_counts[0])
   return { name: top.id_sensor || 'Sensor', total: top.total_registros || 0 }
 })
 

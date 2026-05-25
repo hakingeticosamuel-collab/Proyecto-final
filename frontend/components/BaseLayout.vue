@@ -20,11 +20,11 @@
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button @click="go('dashboard-publicado')" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Abrir dashboard</button>
+          <button @click="go('dashboard-publicado')" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 shadow-sm">Abrir dashboard</button>
         </div>
       </header>
 
-      <div class="mt-6 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div class="mt-6 grid flex-1 gap-6 lg:grid-cols-[260px_1fr]">
         <aside
           :class="[
             'rounded-[24px] border border-slate-200/80 bg-white/90 p-5 shadow-sm backdrop-blur-xl transition-all lg:sticky lg:top-24 lg:self-start',
