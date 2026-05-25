@@ -14,7 +14,10 @@
         <p class="mt-1 text-2xl font-semibold text-slate-900">{{ value }}</p>
       </div>
     </div>
-    <p class="mt-3 text-sm leading-6 text-slate-500">{{ description }}</p>
+    <div class="mt-3">
+      <div v-if="loading" class="h-4 w-3/4 animate-pulse rounded bg-slate-100"></div>
+      <p v-else class="mt-3 text-sm leading-6 text-slate-500">{{ description }}</p>
+    </div>
   </div>
 </template>
 
@@ -24,4 +27,5 @@ const props = defineProps({
   value: { type: [String, Number], required: true },
   description: { type: String, default: '' },
 })
+const loading = false
 </script>
