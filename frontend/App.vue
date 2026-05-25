@@ -5,7 +5,7 @@
         <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Entrega 3 · Proyecto Paipa Smart Light</p>
         <h2 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Integración total: Publicación Web, Prototipo y Sustentación</h2>
         <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
-          Portal de demostración estático que resume la arquitectura, el prototipo IoT, la integración analítica (Power BI) y la guía de sustentación. Use la navegación para recorrer las secciones del informe de entrega.
+          Portal de demostración que conecta el prototipo IoT, el almacenamiento en Somee/SQL Server, el modelo analítico en Power BI y la publicación en Flask. Use la navegación para recorrer la arquitectura completa.
         </p>
         <div class="mt-6 flex flex-wrap gap-3">
           <a href="#portada" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Portada</a>
@@ -17,9 +17,9 @@
 
     <template #cards>
       <MetricCard subtitle="Modo" value="Docker" description="La interfaz está pensada para levantar dentro de un contenedor reproducible." />
-      <MetricCard subtitle="Backend" value="Flask" description="Sirve la SPA y expone solo rutas mínimas de salud." />
-      <MetricCard subtitle="Frontend" value="Vue" description="Una landing estática con navegación interna y sin dependencias externas." />
-      <MetricCard subtitle="Objetivo" value="Estabilidad" description="Reducir puntos de falla y aislar el problema original por capas." />
+      <MetricCard subtitle="Backend" value="Flask" description="Sirve la SPA, el health check y la capa de integración mínima." />
+      <MetricCard subtitle="Frontend" value="Vue" description="Landing sobria con navegación interna, Power BI y Leaflet." />
+      <MetricCard subtitle="Objetivo" value="Conexión" description="Relacionar IoT, base de datos, analítica y publicación web." />
     </template>
 
     <section id="portada" class="space-y-6">
@@ -61,6 +61,16 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="introduccion" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-sm">
+        <p class="text-sm uppercase tracking-[0.28em] text-slate-500">Introducción</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Relación entre los componentes</h2>
+        <p class="mt-3 text-sm leading-7 text-slate-600">
+          La propuesta integra captura de datos desde un prototipo IoT, almacenamiento operacional en Somee/SQL Server, procesamiento ETL, visualización en Power BI y una publicación web con Flask. El resultado es una demostración completa de ciudad inteligente aplicada al alumbrado público.
+        </p>
       </div>
     </section>
 
@@ -127,12 +137,16 @@
         <h2 class="mt-2 text-2xl font-semibold text-slate-950">Arquitectura y evidencia de despliegue</h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
           <div>
-            <p class="text-sm text-slate-600">La aplicación se publica en Render usando Docker. El contenedor incluye build del frontend y servidor Flask que sirve la SPA y endpoints mínimos (`/health`, `/app`).</p>
-            <p class="mt-3 text-sm text-slate-600">Comandos y archivo clave: `Dockerfile`, `render.yaml`, `requirements.txt`.</p>
+            <p class="text-sm text-slate-600">La aplicación se publica en Render usando Docker. El contenedor incluye el build del frontend y un servidor Flask que sirve la SPA, expone `/health` y documenta el estado de la fuente de datos.</p>
+            <p class="mt-3 text-sm text-slate-600">Comandos y archivos clave: `Dockerfile`, `render.yaml`, `requirements.txt`, `app.py`.</p>
           </div>
           <div>
-            <p class="text-sm text-slate-600">Power BI: inserte aquí el enlace de inserción o documente la URL pública del reporte. Si el embed no es posible, capture pantallas y pegue enlaces en la sección de evidencias.</p>
+            <p class="text-sm text-slate-600">Power BI queda embebido en el portal para que el jurado vea el dashboard dentro del flujo de la entrega. Si el servicio bloquea el iframe, el botón externo abre el reporte publicado.</p>
           </div>
+        </div>
+        <div class="mt-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+          <p class="text-sm font-semibold text-slate-950">Estado de la fuente de datos</p>
+          <p class="mt-1 text-sm text-slate-600">{{ sourceStatus.source }} · {{ sourceStatus.configured ? 'configurada' : 'pendiente de credenciales' }} · modo {{ sourceStatus.mode }}</p>
         </div>
       </div>
     </section>
@@ -142,8 +156,69 @@
         <p class="text-sm uppercase tracking-[0.28em] text-slate-500">Dashboard publicado</p>
         <h2 class="mt-2 text-2xl font-semibold text-slate-950">Acceso público y filtros</h2>
         <p class="mt-3 text-sm text-slate-600">URL pública: <span class="font-medium">https://proyecto-final-24st.onrender.com</span></p>
-        <p class="mt-2 text-sm text-slate-600">Filtros disponibles: rango de fechas, zona/ubicación, dispositivo y estado de alertas (si aplica).</p>
+        <p class="mt-2 text-sm text-slate-600">Filtros disponibles: rango de fechas, zona/ubicación, dispositivo y estado de alertas.</p>
+        <div class="mt-4">
+          <div class="rounded-md border border-slate-200 bg-white overflow-hidden">
+            <iframe src="https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9" class="w-full h-[480px] bg-white" loading="lazy" title="Power BI Report" frameborder="0"></iframe>
+            <div class="p-4">
+              <a href="https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9" target="_blank" rel="noopener" class="inline-flex items-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Abrir en Power BI</a>
+              <p class="mt-2 text-sm text-slate-500">Si el embed no carga por permisos o CSP, use el botón para abrir el reporte en una nueva pestaña.</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+          <p class="text-sm font-semibold text-slate-950">Estado de la fuente de datos</p>
+          <p class="mt-1 text-sm text-slate-600">{{ sourceStatus.source }} · {{ sourceStatus.configured ? 'configurada' : 'pendiente de credenciales' }} · modo {{ sourceStatus.mode }}</p>
+        </div>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Mediciones</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-950">{{ dataSummary.counts?.mediciones?.total_mediciones ?? '—' }}</p>
+            <p class="mt-1 text-sm text-slate-600">Última: {{ dataSummary.counts?.mediciones?.ultima_medicion ?? 'sin datos' }}</p>
+          </div>
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Dispositivos</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-950">{{ dataSummary.counts?.dispositivos?.total_dispositivos ?? '—' }}</p>
+            <p class="mt-1 text-sm text-slate-600">Activos: {{ dataSummary.counts?.dispositivos?.dispositivos_activos ?? '—' }}</p>
+          </div>
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-500">DW</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-950">{{ dataSummary.counts?.fact_mediciones?.total_fact_mediciones ?? '—' }}</p>
+            <p class="mt-1 text-sm text-slate-600">Carga: {{ dataSummary.counts?.fact_mediciones?.ultima_carga ?? 'sin datos' }}</p>
+          </div>
+        </div>
+        <div class="mt-5 rounded-[22px] border border-slate-200 bg-white p-4">
+          <p class="text-sm font-semibold text-slate-950">Últimas mediciones</p>
+          <div class="mt-3 overflow-x-auto">
+            <table class="min-w-full text-left text-sm text-slate-600">
+              <thead class="text-xs uppercase tracking-[0.2em] text-slate-500">
+                <tr>
+                  <th class="pb-2 pr-4">ID</th>
+                  <th class="pb-2 pr-4">Sensor</th>
+                  <th class="pb-2 pr-4">Fecha</th>
+                  <th class="pb-2 pr-4">Valor</th>
+                  <th class="pb-2 pr-4">Calidad</th>
+                  <th class="pb-2 pr-4">Fuente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in dataSummary.latest_mediciones" :key="row.id_medicion" class="border-t border-slate-100">
+                  <td class="py-2 pr-4">{{ row.id_medicion }}</td>
+                  <td class="py-2 pr-4">{{ row.id_sensor }}</td>
+                  <td class="py-2 pr-4">{{ row.fecha_hora }}</td>
+                  <td class="py-2 pr-4">{{ row.valor }}</td>
+                  <td class="py-2 pr-4">{{ row.calidad_dato }}</td>
+                  <td class="py-2 pr-4">{{ row.fuente }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <section id="mapa-interactivo" class="space-y-6">
+      <LeafletMap />
     </section>
 
     <section id="sustentacion" class="space-y-6">
@@ -180,6 +255,14 @@
       </div>
     </section>
 
+    <section id="conclusiones" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-sm">
+        <p class="text-sm uppercase tracking-[0.28em] text-slate-500">Conclusiones</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Cierre de la entrega</h2>
+        <p class="mt-3 text-sm text-slate-600">La publicación web une presentación, analítica y evidencia operativa en un solo recorrido. La parte conectada a Power BI, Somee/SQL Server y Leaflet deja visible la relación entre infraestructura, datos y visualización.</p>
+      </div>
+    </section>
+
     <section id="estado" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -205,15 +288,60 @@
         </div>
       </div>
     </section>
+    
+    <section id="evidencias" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-sm">
+        <p class="text-sm uppercase tracking-[0.28em] text-slate-500">Evidencias</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Capturas y pruebas</h2>
+        <p class="mt-3 text-sm text-slate-600">La captura final se incluirá en la versión enviada. Reemplazar los placeholders con imágenes reales en `frontend/assets/images/`.</p>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div class="rounded-[18px] border border-slate-200 bg-slate-50 p-3">
+            <img src="/assets/images/evidence-dashboard.png" alt="evidence dashboard" class="h-40 w-full object-cover rounded-md" />
+            <p class="mt-2 text-sm text-slate-600">Dashboard público (placeholder)</p>
+          </div>
+          <div class="rounded-[18px] border border-slate-200 bg-slate-50 p-3">
+            <img src="/assets/images/evidence-prototype.jpg" alt="evidence prototype" class="h-40 w-full object-cover rounded-md" />
+            <p class="mt-2 text-sm text-slate-600">Maqueta / prototipo (placeholder)</p>
+          </div>
+          <div class="rounded-[18px] border border-slate-200 bg-slate-50 p-3">
+            <img src="/assets/images/evidence-deploy.png" alt="evidence deploy" class="h-40 w-full object-cover rounded-md" />
+            <p class="mt-2 text-sm text-slate-600">Evidencia de despliegue (placeholder)</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </BaseLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import BaseLayout from './components/BaseLayout.vue'
 import MetricCard from './components/MetricCard.vue'
+import LeafletMap from './components/LeafletMap.vue'
 
-const selectedSection = ref('dashboard')
+const selectedSection = ref('portada')
+const sourceStatus = ref({ source: 'Somee/SQL Server', configured: false, mode: 'unconfigured' })
+const dataSummary = ref({ configured: false, counts: {}, latest_mediciones: [] })
+
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/source-status')
+    if (response.ok) {
+      sourceStatus.value = await response.json()
+    }
+  } catch {
+    sourceStatus.value = { source: 'Somee/SQL Server', configured: false, mode: 'offline' }
+  }
+
+  try {
+    const response = await fetch('/api/dw-summary')
+    if (response.ok) {
+      dataSummary.value = await response.json()
+    }
+  } catch {
+    dataSummary.value = { configured: false, counts: {}, latest_mediciones: [] }
+  }
+})
 
 function handleNavigate(section) {
   selectedSection.value = section

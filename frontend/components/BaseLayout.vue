@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="hidden items-center gap-3 sm:flex">
-          <button @click="go('dashboard')" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Inicio</button>
+          <button @click="go('portada')" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Portada</button>
           <button @click="go('arquitectura')" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Arquitectura</button>
         </div>
       </header>
@@ -46,42 +46,18 @@
             </button>
           </div>
           <nav class="mt-6 space-y-3 text-sm">
-            <button
-              @click="go('dashboard')"
-              type="button"
-              :class="[
-                'w-full text-left rounded-2xl px-4 py-3 transition',
-                selectedSection === 'dashboard'
-                  ? 'bg-slate-950 text-white'
-                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
-              ]"
-            >
-              Inicio
-            </button>
-            <button
-              @click="go('arquitectura')"
-              type="button"
-              :class="[
-                'w-full text-left rounded-2xl px-4 py-3 transition',
-                selectedSection === 'arquitectura'
-                  ? 'bg-slate-950 text-white'
-                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
-              ]"
-            >
-              Arquitectura
-            </button>
-            <button
-              @click="go('estado')"
-              type="button"
-              :class="[
-                'w-full text-left rounded-2xl px-4 py-3 transition',
-                selectedSection === 'estado'
-                  ? 'bg-slate-950 text-white'
-                  : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
-              ]"
-            >
-              Estado
-            </button>
+            <button @click="go('portada')" type="button" :class="buttonClass('portada')">Portada</button>
+            <button @click="go('introduccion')" type="button" :class="buttonClass('introduccion')">Introducción</button>
+            <button @click="go('arquitectura')" type="button" :class="buttonClass('arquitectura')">Arquitectura</button>
+            <button @click="go('prototipo-iot')" type="button" :class="buttonClass('prototipo-iot')">Prototipo IoT</button>
+            <button @click="go('publicacion-web')" type="button" :class="buttonClass('publicacion-web')">Publicación web</button>
+            <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard publicado</button>
+            <button @click="go('mapa-interactivo')" type="button" :class="buttonClass('mapa-interactivo')">Mapa interactivo</button>
+            <button @click="go('sustentacion')" type="button" :class="buttonClass('sustentacion')">Sustentación</button>
+            <button @click="go('demostracion-tecnica')" type="button" :class="buttonClass('demostracion-tecnica')">Demostración técnica</button>
+            <button @click="go('resultados')" type="button" :class="buttonClass('resultados')">Resultados</button>
+            <button @click="go('conclusiones')" type="button" :class="buttonClass('conclusiones')">Conclusiones</button>
+            <button @click="go('evidencias')" type="button" :class="buttonClass('evidencias')">Evidencias</button>
           </nav>
           <div class="mt-8 rounded-3xl border border-slate-200/80 bg-indigo-600/5 p-4">
             <p class="text-xs uppercase tracking-[0.24em] text-indigo-700/70">Estado</p>
@@ -113,7 +89,7 @@ import { ref } from 'vue'
 const props = defineProps({
   selectedSection: {
     type: String,
-    default: 'dashboard',
+    default: 'portada',
   },
 })
 const emit = defineEmits(['navigate'])
@@ -126,5 +102,13 @@ function toggleSidebar() {
 function go(section) {
   sidebarOpen.value = false
   emit('navigate', section)
+}
+
+function buttonClass(name) {
+  const base = 'w-full text-left rounded-2xl px-4 py-3 transition'
+  if (props.selectedSection === name) {
+    return base + " bg-slate-950 text-white"
+  }
+  return base + " border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
 }
 </script>

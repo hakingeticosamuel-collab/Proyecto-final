@@ -9,3 +9,12 @@ html {
 body {
   background: #f8fafc;
 }
+
+:root {
+  --accent-500: #0b60ff; /* single blue accent */
+}
+
+/* Slightly softer shadows and rounded radii for the design language */
+.shadow-sm {
+  box-shadow: 0 6px 18px rgba(15,23,42,0.04) !important;
+}
