@@ -1,8 +1,12 @@
 import pyodbc
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from pathlib import Path
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 import config
+
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 app = Flask(__name__)
 app.config.update(
@@ -289,6 +293,19 @@ def health_check():
     except Exception:
         app.logger.exception("Health check failed")
         return jsonify({"status": "error", "detail": "No se pudo conectar a la base de datos."}), 500
+
+
+@app.route("/app", defaults={"path": ""})
+@app.route("/app/<path:path>")
+def vue_app(path):
+    if path and (FRONTEND_DIST / path).exists():
+        return send_from_directory(FRONTEND_DIST, path)
+    return send_from_directory(FRONTEND_DIST, "index.html")
+
+
+@app.route("/assets/<path:path>")
+def vue_assets(path):
+    return send_from_directory(FRONTEND_DIST / "assets", path)
 
 
 if __name__ == "__main__":
