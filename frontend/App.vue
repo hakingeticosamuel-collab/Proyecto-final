@@ -11,7 +11,8 @@
           <div class="flex flex-wrap gap-2">
             <button class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800" @click="goTo('dashboard-publicado')">Ir al dashboard</button>
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('mapa-interactivo')">Ir al mapa</button>
-            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('datos-publicos')">Ver datos</button>
+            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('datos-publicos')">Ver gráficas</button>
+            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('registros-datos')">Registros</button>
           </div>
         </div>
       </div>
@@ -53,44 +54,88 @@
 
     <section id="dashboard-publicado" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Dashboard publicado</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Reporte embebido y métricas de lectura</h2>
-        <div class="mt-4 grid gap-6 xl:grid-cols-[1.4fr_0.95fr]">
-          <div class="space-y-4">
-            <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
-              <div class="flex items-center justify-between gap-4">
-                <div>
-                  <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Power BI</p>
-                  <h3 class="mt-2 text-lg font-semibold text-slate-950">Reporte público embebido</h3>
-                </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Integrado</span>
-              </div>
-              <div class="mt-4 rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm">
-                <ReportView :reportUrl="sourceStatus.powerbi_url || ''" class="min-h-[400px]" />
-              </div>
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Dashboard publicado</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-950">Reporte Power BI</h2>
+          </div>
+          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Vista Completa</span>
+        </div>
+        <div class="mt-6 rounded-[24px] border border-slate-200 bg-white p-3 shadow-sm">
+          <ReportView :reportUrl="sourceStatus.powerbi_url || ''" class="min-h-[550px] w-full" />
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Conexión Somee / SQL Server</p>
+          <div class="mt-4 flex items-start gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-6 w-6"><path d="M4 7v10c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V7M4 7c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2M4 7l8 5 8-5"/></svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-slate-950">{{ sourceLabel }}</p>
+              <p class="mt-1 text-sm leading-relaxed text-slate-600">{{ connectionDescription }}</p>
             </div>
           </div>
-
-          <div class="space-y-4">
-            <div class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Conexión Somee</p>
-              <p class="mt-2 text-lg font-semibold text-slate-950">{{ sourceLabel }}</p>
-              <p class="mt-1 text-sm text-slate-600">{{ connectionDescription }}</p>
-            </div>
-            <div class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Últimas mediciones</p>
-              <div class="mt-3 space-y-3">
-                <div v-for="row in latestMeasurements" :key="row.id_medicion" class="rounded-2xl bg-slate-50 p-3">
-                  <div class="flex items-center justify-between gap-3">
-                    <span class="font-medium text-slate-900">Sensor {{ row.id_sensor }}</span>
-                    <span class="text-xs text-slate-400">{{ row.fuente }}</span>
-                  </div>
-                  <div class="mt-1 flex items-center justify-between gap-3 text-sm text-slate-600">
-                    <span>{{ row.valor }}</span>
-                    <span>{{ row.fecha_hora }}</span>
-                  </div>
-                </div>
+        </div>
+        <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Actividad reciente</p>
+          <div class="mt-4 space-y-3">
+            <div v-for="row in latestMeasurements" :key="row.id_medicion" class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-3">
+              <div class="flex items-center gap-3">
+                <div class="h-2 w-2 rounded-full bg-blue-500"></div>
+                <span class="text-sm font-medium text-slate-900">Sensor {{ row.id_sensor }}</span>
               </div>
+              <span class="text-sm font-semibold text-slate-950">{{ row.valor }}</span>
+              <span class="text-xs text-slate-400 font-mono">{{ row.fecha_hora }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="registros-datos" class="space-y-6">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Explorador de Datos</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-950">Registros de Mediciones</h2>
+          </div>
+          <button @click="refreshTable" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Refrescar tabla</button>
+        </div>
+        <div class="mt-6 overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th class="px-6 py-4 font-medium">ID</th>
+                  <th class="px-6 py-4 font-medium">Sensor</th>
+                  <th class="px-6 py-4 font-medium">Fecha/Hora</th>
+                  <th class="px-6 py-4 font-medium">Valor</th>
+                  <th class="px-6 py-4 font-medium">Calidad</th>
+                  <th class="px-6 py-4 font-medium text-right">Fuente</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr v-for="row in tableData" :key="row.id_medicion" class="hover:bg-slate-50/50 transition-colors">
+                  <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ row.id_medicion }}</td>
+                  <td class="px-6 py-4 text-slate-600">Sensor {{ row.id_sensor }}</td>
+                  <td class="px-6 py-4 text-slate-600">{{ row.fecha_hora }}</td>
+                  <td class="px-6 py-4 font-semibold text-slate-950">{{ row.valor }}</td>
+                  <td class="px-6 py-4">
+                    <span :class="['rounded-full px-2 py-0.5 text-[10px] font-bold uppercase', row.calidad_dato === 'Buena' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700']">
+                      {{ row.calidad_dato }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right text-slate-400">{{ row.fuente }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
             </div>
           </div>
         </div>

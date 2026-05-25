@@ -6,7 +6,10 @@
           <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Gráficas Somee</p>
           <h2 class="mt-2 text-2xl font-semibold text-slate-950">Visualizaciones interactivas de los datos</h2>
         </div>
-        <p class="max-w-xl text-sm leading-7 text-slate-600">Análisis detallado de mediciones. Para <strong>filtros avanzados</strong> de fechas y sensores, utilice el reporte de Power BI en la sección inferior.</p>
+        <div class="flex items-center gap-3">
+          <p class="max-w-xs text-xs leading-5 text-slate-500">Sincronización en tiempo real con Somee.</p>
+          <button @click="buildCharts" class="rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 transition-colors" title="Actualizar gráficas">🔄</button>
+        </div>
       </div>
       <div v-if="!hasRealData" class="mt-8 rounded-[24px] border border-amber-200 bg-amber-50 p-8 text-center text-sm text-slate-700">No se encontraron registros Somee reales; se muestra información de demostración para mantener la visualización.</div>
       <div class="mt-8 space-y-6">
@@ -161,6 +164,7 @@ function buildCharts() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: { duration: 1500, easing: 'easeOutQuart' },
         plugins: {
           legend: { display: false },
           tooltip: { mode: 'index', intersect: false },

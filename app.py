@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, redirect, send_from_directory, url_for
+from flask import Flask, jsonify, redirect, request, send_from_directory, url_for
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIST = BASE_DIR / 'frontend' / 'dist'
@@ -168,7 +168,7 @@ def last_measurements():
     if not somee_is_configured():
         return jsonify(make_somee_payload(False, 'unconfigured', latest_mediciones=[]))
 
-    limit = int(os.environ.get('LAST_MEASUREMENTS_LIMIT', 5))
+    limit = request.args.get('limit', os.environ.get('LAST_MEASUREMENTS_LIMIT', 5), type=int)
     try:
         return jsonify(make_somee_payload(True, 'read-only', latest_mediciones=fetch_somee_latest_measurements(limit)))
     except Exception as exc:
