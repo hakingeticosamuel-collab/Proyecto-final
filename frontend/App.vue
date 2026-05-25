@@ -40,9 +40,23 @@
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Dashboard publicado</p>
         <h2 class="mt-2 text-2xl font-semibold text-slate-950">Reporte embebido y métricas de lectura</h2>
-        <div class="mt-4 grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(380px,1fr)]">
-          <ReportView :reportUrl="sourceStatus.powerbi_url || ''" />
-          <aside class="space-y-4">
+        <div class="mt-4 grid gap-6 xl:grid-cols-[1.4fr_0.95fr]">
+          <div class="space-y-4">
+            <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Power BI</p>
+                  <h3 class="mt-2 text-lg font-semibold text-slate-950">Reporte público embebido</h3>
+                </div>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Integrado</span>
+              </div>
+              <div class="mt-4 rounded-[20px] border border-slate-200 bg-white p-3 shadow-sm">
+                <ReportView :reportUrl="sourceStatus.powerbi_url || ''" />
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
             <div class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
               <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Conexión Somee</p>
               <p class="mt-2 text-lg font-semibold text-slate-950">{{ sourceLabel }}</p>
@@ -63,7 +77,7 @@
                 </div>
               </div>
             </div>
-          </aside>
+          </div>
         </div>
       </div>
     </section>

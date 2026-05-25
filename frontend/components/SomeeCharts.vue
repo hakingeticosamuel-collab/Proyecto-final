@@ -8,8 +8,8 @@
         </div>
         <p class="max-w-xl text-sm leading-7 text-slate-600">Gráficos con información derivada de los registros Somee para acompañar el dashboard Power BI y ofrecer indicadores KPI en la misma web.</p>
       </div>
-      <div v-if="!hasData" class="mt-8 rounded-[24px] border border-slate-200 bg-slate-50 p-8 text-center text-sm text-slate-600">No hay datos de Somee disponibles para graficar en este momento.</div>
-      <div v-else class="mt-8 space-y-6">
+      <div v-if="!hasRealData" class="mt-8 rounded-[24px] border border-amber-200 bg-amber-50 p-8 text-center text-sm text-slate-700">No se encontraron registros Somee reales; se muestra información de demostración para mantener la visualización.</div>
+      <div class="mt-8 space-y-6">
         <div class="grid gap-4 md:grid-cols-3">
           <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
             <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Total de mediciones</p>
@@ -75,20 +75,42 @@ const sensorChartCanvas = ref(null)
 let dailyChart = null
 let sensorChart = null
 
-const hasData = computed(() => {
+const hasRealData = computed(() => {
   return Array.isArray(props.chartData.daily_counts) && props.chartData.daily_counts.length > 0
 })
 
+const fallbackDailyCounts = [
+  { dia: '2026-05-18', total_mediciones: 128 },
+  { dia: '2026-05-19', total_mediciones: 142 },
+  { dia: '2026-05-20', total_mediciones: 159 },
+  { dia: '2026-05-21', total_mediciones: 173 },
+  { dia: '2026-05-22', total_mediciones: 186 },
+  { dia: '2026-05-23', total_mediciones: 194 },
+  { dia: '2026-05-24', total_mediciones: 205 },
+]
+
+const fallbackSensorCounts = [
+  { id_sensor: 'Sensor 1', total_registros: 78 },
+  { id_sensor: 'Sensor 2', total_registros: 63 },
+  { id_sensor: 'Sensor 3', total_registros: 49 },
+  { id_sensor: 'Sensor 4', total_registros: 38 },
+  { id_sensor: 'Sensor 5', total_registros: 24 },
+]
+
+const activeChartData = computed(() => {
+  return hasRealData.value ? props.chartData : { daily_counts: fallbackDailyCounts, sensor_counts: fallbackSensorCounts }
+})
+
 const totalMediciones = computed(() => {
-  return props.chartData.daily_counts.reduce((sum, row) => sum + Number(row.total_mediciones || 0), 0)
+  return activeChartData.value.daily_counts.reduce((sum, row) => sum + Number(row.total_mediciones || 0), 0)
 })
 
 const sensorCount = computed(() => {
-  return props.chartData.sensor_counts.length
+  return activeChartData.value.sensor_counts.length
 })
 
 const lastDate = computed(() => {
-  const dates = props.chartData.daily_counts.map(row => row.dia).filter(Boolean)
+  const dates = activeChartData.value.daily_counts.map(row => row.dia).filter(Boolean)
   return dates.length ? dates[dates.length - 1] : '—'
 })
 
@@ -113,16 +135,16 @@ function buildCharts() {
   if (!window?.Chart) return
   destroyCharts()
 
-  if (hasData.value && dailyChartCanvas.value) {
+  if (activeChartData.value.daily_counts.length && dailyChartCanvas.value) {
     const ctx = dailyChartCanvas.value.getContext('2d')
     dailyChart = new window.Chart(ctx, {
       type: 'line',
       data: {
-        labels: props.chartData.daily_counts.map(row => row.dia),
+        labels: activeChartData.value.daily_counts.map(row => row.dia),
         datasets: [
           {
             label: 'Mediciones por día',
-            data: props.chartData.daily_counts.map(row => Number(row.total_mediciones || 0)),
+            data: activeChartData.value.daily_counts.map(row => Number(row.total_mediciones || 0)),
             borderColor: '#1d4ed8',
             backgroundColor: 'rgba(59, 130, 246, 0.16)',
             fill: true,
@@ -147,16 +169,16 @@ function buildCharts() {
     })
   }
 
-  if (props.chartData.sensor_counts.length && sensorChartCanvas.value) {
+  if (activeChartData.value.sensor_counts.length && sensorChartCanvas.value) {
     const ctx = sensorChartCanvas.value.getContext('2d')
     sensorChart = new window.Chart(ctx, {
       type: 'bar',
       data: {
-        labels: props.chartData.sensor_counts.map(row => row.id_sensor),
+        labels: activeChartData.value.sensor_counts.map(row => row.id_sensor),
         datasets: [
           {
             label: 'Registros por sensor',
-            data: props.chartData.sensor_counts.map(row => Number(row.total_registros || 0)),
+            data: activeChartData.value.sensor_counts.map(row => Number(row.total_registros || 0)),
             backgroundColor: '#2563eb',
             borderRadius: 8,
             barThickness: 22,
