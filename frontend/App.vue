@@ -38,63 +38,7 @@
           <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
             <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Modo</p>
             <p class="mt-2 text-lg font-semibold text-slate-950">Lectura pública</p>
-            <p class="mt-1 text-sm text-slate-600">Somee y el dashboard están disponibles en modo sólo lectura público.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="arquitectura" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Arquitectura</p>
-            <h2 class="mt-2 text-2xl font-semibold text-slate-950">Flujo de datos de extremo a extremo</h2>
-          </div>
-          <span class="rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">IoT → SQL → ETL → DW → Power BI → Flask</span>
-        </div>
-        <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div v-for="node in architectureNodes" :key="node.title" class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">{{ node.step }}</p>
-            <p class="mt-3 text-lg font-semibold text-slate-950">{{ node.title }}</p>
-            <p class="mt-2 text-sm text-slate-600">{{ node.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="prototipo-iot" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Prototipo IoT</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Dispositivos y captura</h2>
-        <div class="mt-4 grid gap-4 lg:grid-cols-[1fr_0.8fr]">
-          <div class="text-sm leading-7 text-slate-600">
-            <p>La maqueta simula un sistema de alumbrado público con sensores de luminosidad, movimiento y consumo. Los datos se envían a SQL Server para luego alimentar el DW y el reporte analítico.</p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span v-for="chip in iotChips" :key="chip" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ chip }}</span>
-            </div>
-          </div>
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Estado</p>
-            <p class="mt-2 text-sm text-slate-600">La información mostrada en esta web se alinea con la evidencia del prototipo y la lectura real desde Somee cuando las credenciales están disponibles.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="publicacion-web" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Publicación web</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Render + Docker + Flask</h2>
-        <div class="mt-4 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-          <div class="space-y-3 text-sm leading-7 text-slate-600">
-            <p>El portal se publica en Render con Docker. Flask sirve la SPA y expone las rutas de estado y lectura. La interfaz se mantiene simple y consistente para una presentación pública.</p>
-            <p>La integración visual debe explicar IoT, Big Data, analítica y ciudades inteligentes sin recargar el panel con mensajes técnicos innecesarios.</p>
-          </div>
-          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fuente</p>
-            <p class="mt-2 text-sm font-medium text-slate-900">{{ sourceStatus.source }}</p>
-            <p class="mt-1 text-sm text-slate-600">{{ sourceLabel }}</p>
+            <p class="mt-1 text-sm text-slate-600">Somee y el dashboard se muestran como contenido público verificado.</p>
           </div>
         </div>
       </div>
@@ -141,35 +85,6 @@
         <LeafletMap />
       </div>
     </section>
-
-    <section id="resultados" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Resultados</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Impacto y utilidad</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">El sitio deja visible cómo los datos alimentan una visualización útil para ciudades inteligentes y cómo se publica de forma estable con Docker y Render.</p>
-      </div>
-    </section>
-
-    <section id="conclusiones" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Conclusiones</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Cierre de la entrega</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">La experiencia final debe sentirse pública, clara y verificable: Power BI visible, Somee conectado en lectura y navegación directa a cada parte del proyecto.</p>
-      </div>
-    </section>
-
-    <section id="evidencias" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Evidencias</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Capturas y pruebas</h2>
-        <div class="mt-4 grid gap-4 md:grid-cols-3">
-          <div v-for="evidence in evidenceCards" :key="evidence.title" class="rounded-[20px] border border-slate-200 bg-slate-50 p-3">
-            <img :src="evidence.src" :alt="evidence.title" class="h-40 w-full rounded-[16px] object-cover" />
-            <p class="mt-2 text-sm text-slate-600">{{ evidence.title }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
   </BaseLayout>
 </template>
 
@@ -187,32 +102,25 @@ const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos:
 const latestMeasurements = ref([])
 const chartData = ref({ daily_counts: [], sensor_counts: [] })
 
+const dataAvailable = computed(() => {
+  return (
+    Number(summary.value.counts?.mediciones?.total_mediciones) > 0 ||
+    Array.isArray(chartData.value.daily_counts) && chartData.value.daily_counts.length > 0 ||
+    Array.isArray(chartData.value.sensor_counts) && chartData.value.sensor_counts.length > 0
+  )
+})
+
 const sourceLabel = computed(() => {
   if (sourceStatus.value.configured) return 'Conectado en modo lectura'
-  if (chartData.value.daily_counts?.length || chartData.value.sensor_counts?.length) return 'Datos SQL Server disponibles'
+  if (dataAvailable.value) return 'SQL Server disponible (Somee pendiente)'
   return 'Lectura Somee pendiente'
 })
+
 const connectionDescription = computed(() => {
   if (sourceStatus.value.configured) return 'La lectura está activa en modo solo consulta.'
-  if (chartData.value.daily_counts?.length || chartData.value.sensor_counts?.length) return 'Datos cargados desde SQL Server; falta la conexión pública Somee.'
+  if (dataAvailable.value) return 'El sitio muestra datos SQL Server; falta la conexión pública Somee.'
   return 'Sin credenciales Somee; conexión pendiente.'
 })
-const connectionDescription = computed(() => (sourceStatus.value.configured ? 'La lectura está activa en modo solo consulta.' : 'Sin credenciales públicas; datos en modo demostración.'))
-
-const architectureNodes = [
-  { step: '1. IoT', title: 'Captura', description: 'Sensores y prototipo generan la evidencia operacional.' },
-  { step: '2. SQL Server', title: 'Somee', description: 'Almacenamiento operacional para pruebas y validación.' },
-  { step: '3. DW', title: 'ETL', description: 'Transformación y carga para analítica y reportes.' },
-  { step: '4. Web', title: 'Flask + Power BI', description: 'Publicación visual y consulta de indicadores.' },
-]
-
-const iotChips = ['ESP32', 'BH1750', 'PIR', 'SCT-013', 'DS18B20']
-
-const evidenceCards = [
-  { title: 'Dashboard público', src: '/app/assets/images/evidence-dashboard.svg' },
-  { title: 'Prototipo IoT', src: '/app/assets/images/evidence-prototype.svg' },
-  { title: 'Despliegue', src: '/app/assets/images/evidence-deploy.svg' },
-]
 
 onMounted(async () => {
   try {

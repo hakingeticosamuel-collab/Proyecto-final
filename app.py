@@ -21,7 +21,7 @@ def health():
 
 @app.route('/api/source-status')
 def source_status():
-    configured = bool(os.environ.get('SOMEE_SERVER') and os.environ.get('SOMEE_DATABASE'))
+    configured = somee_is_configured()
     return jsonify(
         {
             'configured': configured,

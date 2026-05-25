@@ -48,15 +48,11 @@
             <button @click="go('introduccion')" type="button" :class="buttonClass('introduccion')">Introducción</button>
             <button @click="go('datos-publicos')" type="button" :class="buttonClass('datos-publicos')">Datos públicos</button>
             <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard público</button>
-            <button @click="go('publicacion-web')" type="button" :class="buttonClass('publicacion-web')">Publicación web</button>
             <button @click="go('mapa-interactivo')" type="button" :class="buttonClass('mapa-interactivo')">Mapa interactivo</button>
-            <button @click="go('resultados')" type="button" :class="buttonClass('resultados')">Resultados</button>
-            <button @click="go('conclusiones')" type="button" :class="buttonClass('conclusiones')">Conclusiones</button>
-            <button @click="go('evidencias')" type="button" :class="buttonClass('evidencias')">Evidencias</button>
           </nav>
           <div class="mt-8 rounded-[20px] border border-slate-200/80 bg-slate-50 p-4">
             <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Estado</p>
-            <p class="mt-2 text-sm leading-6 text-slate-700">Vista pública optimizada para lectura rápida, responsive y con acciones concentradas en el dashboard.</p>
+            <p class="mt-2 text-sm leading-6 text-slate-700">Panel público centrado en datos reales, visualización y acceso directo al reporte embebido.</p>
           </div>
         </aside>
 
