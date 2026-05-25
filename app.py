@@ -111,8 +111,10 @@ def check_somee_connection():
 
 
 def fetch_somee_latest_measurements(limit=5):
+    # Si limit es 0 o menor, no aplicamos la cláusula TOP para obtener todo el histórico
+    top_clause = f'TOP {int(limit)}' if limit and limit > 0 else ''
     return run_somee_query(
-        f'SELECT TOP {int(limit)} id_medicion, id_sensor, fecha_hora, valor, calidad_dato, fuente, created_at FROM dbo.medicion ORDER BY fecha_hora DESC'
+        f'SELECT {top_clause} id_medicion, id_sensor, fecha_hora, valor, calidad_dato, fuente, created_at FROM dbo.medicion ORDER BY fecha_hora DESC'
     )
 
 

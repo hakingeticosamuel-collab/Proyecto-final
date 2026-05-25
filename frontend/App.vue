@@ -103,7 +103,23 @@
             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Explorador de Datos</p>
             <h2 class="mt-2 text-2xl font-semibold text-slate-950">Registros de Mediciones</h2>
           </div>
-          <button @click="refreshTable" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Refrescar tabla</button>
+          <div class="flex flex-wrap gap-2">
+            <button @click="downloadCSV" :disabled="isRefreshing" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 shadow-sm disabled:cursor-not-allowed disabled:opacity-50">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-slate-500">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Descargar CSV
+            </button>
+            <button @click="refreshTable" :disabled="isRefreshing" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 shadow-sm disabled:cursor-not-allowed disabled:opacity-50">
+              <svg :class="{ 'animate-spin': isRefreshing }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-slate-500">
+                <path d="M23 4v6h-6" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+              {{ isRefreshing ? 'Cargando...' : 'Refrescar tabla' }}
+            </button>
+          </div>
         </div>
         <div class="mt-6 overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
           <div class="overflow-x-auto">
@@ -212,6 +228,7 @@ const chartData = ref({ daily_counts: [], sensor_counts: [], quality_counts: [] 
 const qualityChartCanvas = ref(null)
 let qualityChart = null
 const tableData = ref([])
+const isRefreshing = ref(false)
 
 const sourceLabel = computed(() => {
   if (sourceStatus.value.mode === 'read-only') return 'Somee conectado en modo lectura'
@@ -268,6 +285,7 @@ function buildQualityChart() {
 }
 
 async function fetchTableData() {
+  isRefreshing.value = true
   try {
     const response = await fetch('/api/last-measurements?limit=20')
     if (response.ok) {
@@ -276,6 +294,9 @@ async function fetchTableData() {
     }
   } catch (error) {
     console.error('Error fetching table data:', error)
+  } finally {
+    // Pequeño retardo para que la transición sea visible
+    setTimeout(() => { isRefreshing.value = false }, 600)
   }
 }
 
@@ -334,5 +355,49 @@ function goTo(section) {
 
 function refreshTable() {
   fetchTableData()
+}
+
+async function downloadCSV() {
+  if (isRefreshing.value) return
+  isRefreshing.value = true
+
+  let dataToDownload = [];
+  try {
+    // Solicitamos limit=0 para que el backend ignore el TOP y traiga el histórico completo
+    const response = await fetch('/api/last-measurements?limit=0')
+    const data = await response.json()
+    dataToDownload = data.latest_mediciones || []
+  } catch (error) {
+    console.error('Error al obtener histórico para CSV:', error)
+    return
+  } finally {
+    isRefreshing.value = false
+  }
+
+  if (!dataToDownload.length) return
+
+  const headers = ['ID', 'Sensor', 'Fecha_Hora', 'Valor', 'Calidad', 'Fuente']
+  const rows = dataToDownload.map(row => [
+    row.id_medicion,
+    `Sensor ${row.id_sensor}`,
+    row.fecha_hora,
+    row.valor,
+    row.calidad_dato,
+    row.fuente
+  ])
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(e => e.join(','))
+  ].join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `mediciones_paipa_completo_${new Date().toISOString().split('T')[0]}.csv`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 </script>
