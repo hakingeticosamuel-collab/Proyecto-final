@@ -5,12 +5,12 @@
         <p class="text-xs uppercase tracking-[0.32em] text-slate-400">Paipa Smart Light</p>
         <div class="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div class="max-w-2xl">
-            <h1 class="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Portal público limpio para visualización y evidencia</h1>
-            <p class="mt-3 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">Una interfaz sobria para presentar la arquitectura del proyecto, el dashboard de Power BI, la lectura real de Somee y el mapa interactivo sin ruido técnico.</p>
+            <h1 class="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Portal público del proyecto</h1>
+            <p class="mt-3 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">Un sitio limpio y directo que muestra el proyecto Paipa Smart Light con datos públicos desde Somee/SQL Server y un dashboard Power BI embebido.</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800" @click="goTo('dashboard-publicado')">Ver dashboard</button>
-            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('mapa-interactivo')">Ver mapa</button>
+            <button class="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800" @click="goTo('dashboard-publicado')">Ir al dashboard</button>
+            <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('mapa-interactivo')">Ir al mapa</button>
             <button class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="goTo('publicacion-web')">Ver publicación</button>
           </div>
         </div>
@@ -21,45 +21,26 @@
       <MetricCard subtitle="Mediciones" :value="summary.counts?.mediciones?.total_mediciones ?? '—'" description="Total de registros en dbo.medicion" />
       <MetricCard subtitle="Dispositivos" :value="summary.counts?.dispositivos?.total_dispositivos ?? '—'" description="Dispositivos activos en Somee" />
       <MetricCard subtitle="Última carga" :value="summary.counts?.fact_mediciones?.ultima_carga ?? '—'" description="Último lote cargado al DW" />
-      <MetricCard subtitle="Conexión" :value="sourceLabel" description="Estado real de la fuente Somee" />
+      <MetricCard subtitle="Conexión" :value="sourceLabel" description="Lectura pública desde Somee / SQL Server" />
     </template>
-
-    <section id="portada" class="space-y-6">
-      <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-          <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Portada</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-950">Sistema Inteligente de Alumbrado Público — Paipa</h2>
-          <p class="mt-3 text-sm leading-7 text-slate-600">Entrega 3: publicación web clara, con métricas de Somee, dashboard de Power BI y mapa interactivo para mostrar la relación entre IoT, analítica y ciudad inteligente.</p>
-          <div class="mt-6 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-              <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Entrega</p>
-              <p class="mt-2 text-lg font-semibold text-slate-950">Portal público</p>
-              <p class="mt-1 text-sm text-slate-600">Publicación web, prototipo, dashboard y sustentación.</p>
-            </div>
-            <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
-              <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Modo</p>
-              <p class="mt-2 text-lg font-semibold text-slate-950">Lectura real</p>
-              <p class="mt-1 text-sm text-slate-600">Somee se consulta solo en modo read-only.</p>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-          <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Ruta de presentación</p>
-          <div class="mt-4 space-y-3">
-            <div v-for="item in validationPoints" :key="item.title" class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-              <p class="text-sm font-semibold text-slate-950">{{ item.title }}</p>
-              <p class="mt-1 text-sm text-slate-600">{{ item.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <section id="introduccion" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Introducción</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Qué conecta este portal</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">La experiencia une captura IoT, almacenamiento operacional en Somee/SQL Server, ETL, modelo analítico en DW, publicación con Flask y visualización en Power BI.</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Proyecto público Paipa Smart Light</h2>
+        <p class="mt-3 text-sm leading-7 text-slate-600">Este portal muestra el proyecto de alumbrado inteligente en Paipa con datos públicos de Somee/SQL Server, un dashboard Power BI embebido y un mapa interactivo de la solución.</p>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Entrega</p>
+            <p class="mt-2 text-lg font-semibold text-slate-950">Portal público</p>
+            <p class="mt-1 text-sm text-slate-600">Presentación clara de datos, visualización y despliegue.</p>
+          </div>
+          <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Modo</p>
+            <p class="mt-2 text-lg font-semibold text-slate-950">Lectura pública</p>
+            <p class="mt-1 text-sm text-slate-600">Somee y el dashboard están disponibles en modo sólo lectura público.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -113,7 +94,7 @@
           <div class="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
             <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fuente</p>
             <p class="mt-2 text-sm font-medium text-slate-900">{{ sourceStatus.source }}</p>
-            <p class="mt-1 text-sm text-slate-600">{{ sourceStatus.configured ? 'Conectado en modo de lectura' : 'Pendiente de credenciales' }}</p>
+            <p class="mt-1 text-sm text-slate-600">{{ sourceLabel }}</p>
           </div>
         </div>
       </div>
@@ -157,24 +138,6 @@
       </div>
     </section>
 
-    <section id="sustentacion" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Sustentación</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Cómo presentar el proyecto</h2>
-        <p class="mt-3 text-sm leading-7 text-slate-600">Recorre el flujo IoT, muestra el dashboard embebido, valida la lectura desde Somee y cierra con el mapa y las evidencias del despliegue.</p>
-      </div>
-    </section>
-
-    <section id="demostracion-tecnica" class="space-y-6">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Demostración técnica</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Qué mostrar en vivo</h2>
-        <ul class="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-          <li v-for="item in demoChecklist" :key="item" class="rounded-2xl bg-slate-50 p-4">{{ item }}</li>
-        </ul>
-      </div>
-    </section>
-
     <section id="resultados" class="space-y-6">
       <div class="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-sm sm:p-8">
         <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Resultados</p>
@@ -213,19 +176,13 @@ import MetricCard from './components/MetricCard.vue'
 import LeafletMap from './components/LeafletMap.vue'
 import ReportView from './components/ReportView.vue'
 
-const selectedSection = ref('portada')
+const selectedSection = ref('introduccion')
 const sourceStatus = ref({ source: 'Somee/SQL Server', configured: false, mode: 'unconfigured', powerbi_url: '' })
 const summary = ref({ configured: false, counts: { mediciones: {}, dispositivos: {}, fact_mediciones: {} }, latest_mediciones: [] })
 const latestMeasurements = ref([])
 
-const sourceLabel = computed(() => (sourceStatus.value.configured ? 'Conectado' : 'Pendiente de credenciales'))
-const connectionDescription = computed(() => (sourceStatus.value.configured ? 'La lectura está activa en modo solo consulta.' : 'Define las credenciales de entorno para activar la lectura real.'))
-
-const validationPoints = [
-  { title: '1. Contenedor', description: 'Vista reproducible con Docker y un único punto de entrada.' },
-  { title: '2. UI', description: 'Layout claro, tipografía sobria y navegación por anclas internas.' },
-  { title: '3. Datos', description: 'Somee/SQL Server en lectura, sin bloquear la carga si falla.' },
-]
+const sourceLabel = computed(() => (sourceStatus.value.configured ? 'Conectado en modo lectura' : 'Lectura Somee pendiente'))
+const connectionDescription = computed(() => (sourceStatus.value.configured ? 'La lectura está activa en modo solo consulta.' : 'Sin credenciales públicas; datos en modo demostración.'))
 
 const architectureNodes = [
   { step: '1. IoT', title: 'Captura', description: 'Sensores y prototipo generan la evidencia operacional.' },
@@ -235,14 +192,6 @@ const architectureNodes = [
 ]
 
 const iotChips = ['ESP32', 'BH1750', 'PIR', 'SCT-013', 'DS18B20']
-
-const demoChecklist = [
-  'Mostrar la portada y la navegación por secciones.',
-  'Abrir el dashboard y validar el embed de Power BI.',
-  'Comprobar la conexión Somee y las últimas mediciones.',
-  'Moverse al mapa interactivo y revisar marcadores.',
-  'Cerrar con evidencias y conclusiones del proyecto.',
-]
 
 const evidenceCards = [
   { title: 'Dashboard público', src: '/app/assets/images/evidence-dashboard.svg' },

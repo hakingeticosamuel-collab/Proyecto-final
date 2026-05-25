@@ -45,15 +45,12 @@
             </button>
           </div>
           <nav class="mt-6 space-y-2 text-sm">
-            <button @click="go('portada')" type="button" :class="buttonClass('portada')">Portada</button>
             <button @click="go('introduccion')" type="button" :class="buttonClass('introduccion')">Introducción</button>
             <button @click="go('arquitectura')" type="button" :class="buttonClass('arquitectura')">Arquitectura</button>
             <button @click="go('prototipo-iot')" type="button" :class="buttonClass('prototipo-iot')">Prototipo IoT</button>
             <button @click="go('publicacion-web')" type="button" :class="buttonClass('publicacion-web')">Publicación web</button>
             <button @click="go('dashboard-publicado')" type="button" :class="buttonClass('dashboard-publicado')">Dashboard publicado</button>
             <button @click="go('mapa-interactivo')" type="button" :class="buttonClass('mapa-interactivo')">Mapa interactivo</button>
-            <button @click="go('sustentacion')" type="button" :class="buttonClass('sustentacion')">Sustentación</button>
-            <button @click="go('demostracion-tecnica')" type="button" :class="buttonClass('demostracion-tecnica')">Demostración técnica</button>
             <button @click="go('resultados')" type="button" :class="buttonClass('resultados')">Resultados</button>
             <button @click="go('conclusiones')" type="button" :class="buttonClass('conclusiones')">Conclusiones</button>
             <button @click="go('evidencias')" type="button" :class="buttonClass('evidencias')">Evidencias</button>
