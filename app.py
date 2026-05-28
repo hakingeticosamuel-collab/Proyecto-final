@@ -37,7 +37,7 @@ def source_status():
             'source': 'Somee/SQL Server',
             'mode': mode,
             'error': error,
-            'powerbi_url': os.environ.get('POWERBI_URL') or os.environ.get('POWER_BI_URL') or 'https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9',
+            'powerbi_url': os.environ.get('POWERBI_URL') or os.environ.get('POWER_BI_URL') or 'https://app.powerbi.com/view?r=eyJrIjoiNzUwY2EyOTUtNGZiZS00MTE3LThjYTUtZDk5ZWY4MTIwODA3IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9&pageName=0df0bf2198cf62ebbcc9',
         }
     ), 200
 
